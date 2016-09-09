@@ -70,6 +70,7 @@ public class Create3DTex : MonoBehaviour
         trans.Rotate(Vector3.up,30*Time.deltaTime);
 
 
+
     }
 
 
@@ -86,14 +87,14 @@ public class Create3DTex : MonoBehaviour
 
 
 
-        Vector3[] vertices = GetComponent<MeshFilter>().mesh.vertices;
+//        Vector3[] vertices = GetComponent<MeshFilter>().mesh.vertices;
 //        Debug.Log("len is " + verts.Length);
-        for (int i = 0; i < vertices.Length; ++i)
-        {
-            var vec = new Vector3(vertices[i].x + 0.5f, vertices[i].y + 0.5f, vertices[i].z + 0.5f);
-            Debug.Log(vec);
+//        for (int i = 0; i < vertices.Length; ++i)
+//        {
+//            var vec = new Vector3(vertices[i].x + 0.5f, vertices[i].y + 0.5f, vertices[i].z + 0.5f);
+//            Debug.Log(vec);
 
-        }
+//        }
 //        GetComponent<MeshFilter>().mesh.vertices = vertices;
 
 
