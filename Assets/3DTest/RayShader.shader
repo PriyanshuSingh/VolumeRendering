@@ -30,6 +30,8 @@
             uniform sampler3D _Volume;
             uniform sampler2D _FrontTex;
             uniform sampler2D _BackTex;
+            uniform sampler2D _transferF;
+
             struct VertexShaderInput
             {
                 float4 Position : POSITION0;
@@ -75,6 +77,7 @@
             	texC.y =  0.5f*texC.y + 0.5f;
 
                 float3 front = tex2D(_FrontTex, texC).xyz;
+//				float3 front = input.texC;
                 float3 back = tex2D(_BackTex, texC).xyz;
 
                 float3 dir = normalize(back - front);
@@ -93,10 +96,13 @@
             		value = tex3Dlod(_Volume, pos).r;
 
             		src = (float4)value;
+            		//TAG: TF BEGIN
+            		src.rgb = tex2Dlod(_transferF, float4(src.a, 0.5f, 0, 0)).rgb; 
+            		//TAG: TF END
             		src.a *= .1f; //reduce the alpha to have a more transparent result
             					  //this needs to be adjusted based on the step size
             					  //i.e. the more steps we take, the faster the alpha will grow
-
+            		
             		//Front to back blending
             		dst.rgb = dst.rgb + (1 - dst.a) * src.a * src.rgb;
             		dst.a   = dst.a   + (1 - dst.a) * src.a;
