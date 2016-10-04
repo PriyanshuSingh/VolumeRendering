@@ -44,9 +44,6 @@ public class Marcher : MonoBehaviour {
         Assert.IsTrue(cube != null);
         volumeMaterial = cube.GetComponent<MeshRenderer>().material;
 
-
-
-
     }
 	
 	// Update is called once per frame
@@ -94,10 +91,20 @@ public class Marcher : MonoBehaviour {
         var backDepth =  RenderTexture.GetTemporary(source.width, source.height, 0, RenderTextureFormat.ARGBFloat);
 
 
-
+        //Two pass render
         //render with replaced shaders
-        _cam2.targetTexture = frontDepth;
-        _cam2.RenderWithShader(renderFrontDepthShader, "RenderType");
+//        _cam2.targetTexture = frontDepth;
+//        _cam2.RenderWithShader(renderFrontDepthShader, "RenderType");
+//        _cam2.targetTexture = backDepth;
+//        _cam2.RenderWithShader(renderBackDepthShader, "RenderType");
+
+
+
+//Only Back Pass Render
+        //TODO this causes 1 frame lag between the uniforms being updated and used by the volume
+        //render with replaced shaders
+//        _cam2.targetTexture = frontDepth;
+//        _cam2.RenderWithShader(renderFrontDepthShader, "RenderType");
         _cam2.targetTexture = backDepth;
         _cam2.RenderWithShader(renderBackDepthShader, "RenderType");
 
@@ -116,18 +123,14 @@ public class Marcher : MonoBehaviour {
 
 
         //assign uniform values in the Volume material
-        volumeMaterial.SetTexture("_FrontTex",frontDepth);
         volumeMaterial.SetTexture("_BackTex",backDepth);
 
 
-//        Assert.IsTrue(cube != null);
-//        cube.GetComponent<MeshRenderer>().material = volumeMaterial;
 
 
 
 
 
-//        Graphics.Blit(source,destination,volumeMaterial);
 
         RenderTexture.ReleaseTemporary(frontDepth);
         RenderTexture.ReleaseTemporary(backDepth);

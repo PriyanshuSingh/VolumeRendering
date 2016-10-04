@@ -78,6 +78,10 @@ public class Geometry : MonoBehaviour {
         {
             Destroy(_volumeBuffer);
         }
+        if (_transferBuffer != null)
+        {
+            Destroy(_transferBuffer);
+        }
     }
 
 
@@ -98,10 +102,11 @@ public class Geometry : MonoBehaviour {
 
 			for (int j = st; j < en; j++) {
 				float t = j - st;
+
 				t /= en - st + 1;
 				tsf [j] = Color.Lerp (a, b, t); 
 //				Debug.Log (a + " " + b + " " + t);
-				Debug.Log (j + " " + tsf [j]);
+//				Debug.Log (j + " " + tsf [j]);
 			}
 		}
 		tsf [255] = controlPoints [controlPoints.Length - 1].color;
@@ -109,8 +114,7 @@ public class Geometry : MonoBehaviour {
 		_transferBuffer.Apply();
         // TAG: TF END
 
-		// use a bunch of memory!
-        _volumeBuffer = new Texture3D(volumeWidth, volumeHeight, volumeDepth, TextureFormat.ARGB32, false);
+	    _volumeBuffer = new Texture3D(volumeWidth, volumeHeight, volumeDepth, TextureFormat.ARGB32, false);
 
         var w = _volumeBuffer.width;
         var h = _volumeBuffer.height;
@@ -118,7 +122,7 @@ public class Geometry : MonoBehaviour {
 
 
 
-//         skip some slices if we can't fit it all in
+//        skip some slices if we can't fit it all in
         var countOffset = (slices.Length - 1) / (float) d;
 
         var volumeColors = new Color[w * h * d];
@@ -148,8 +152,11 @@ public class Geometry : MonoBehaviour {
 		//TAG: TF BEGIN
 		GetComponent<MeshRenderer> ().material.SetTexture ("_transferF", _transferBuffer); 
         //TAG: TF END
-		//TODO see C# release way
-//        slices = null;
+
+
+
+		//set to null and pray to GC
+        slices = null;
 
     }
 }
