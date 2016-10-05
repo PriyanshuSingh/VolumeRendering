@@ -34,9 +34,10 @@
 
 
             uniform sampler3D _Volume;
-//            uniform sampler3D _Normal;
-
             uniform sampler2D _BackTex;
+
+            //light in local coordinates
+            uniform float3 L = float3(1,1,1);
 
 
 
@@ -118,8 +119,15 @@
 			#define Iterations 128
 			#define StepSize 1.0f/128.0f
 
+
+
             float4 RayCastSimplePS(VertexShaderOutput input) : COLOR0
             {
+
+
+
+
+
             	//calculate projective texture coordinates
             	//used to project the front and back position textures onto the cube
             	float2 texC = input.pos.xy /= input.pos.w;
@@ -136,6 +144,7 @@
 
                 float4 dst = float4(0, 0, 0, 0);
                 float4 src = 0;
+                float4 normal = 0;
 
                 float value = 0;
 
@@ -144,16 +153,25 @@
                 for(int i = 0; i < Iterations; ++i)
                 {
             		pos.w = 0;
-            		value = tex3Dlod(_Volume, pos).r;
-
-            		src = (float4)value;
+            		//get normal
+            		normal = tex3Dlod(_Volume, pos);
+                    //copy greyscale value to src
+            		src = (float4)normal.a;
+            		normal.a = 0;
             		//TAG: TF BEGIN
-            		//src.rgb = tex2Dlod(_transferF, float4(src.a, 0.5f, 0, 0)).rgb;
+            		src.rgb = tex2Dlod(_transferF, float4(src.r, 0.5f, 0, 0)).rgb;
             		//TAG: TF END
-            		src.a *= .3f; //reduce the alpha to have a more transparent result
+
+            		src.a *= .1f; //reduce the alpha to have a more transparent result
             					  //this needs to be adjusted based on the step size
             					  //i.e. the more steps we take, the faster the alpha will grow
-            		
+
+
+
+                    float s = max(dot(normal.xyz,normalize(pos-L)),0);
+                    //diffuse shading + fake ambient lighting
+                    src.rgb = s * src.rgb;
+                    //+ .1f * src.rgb;
             		//Front to back blending
             		//dst.rgb = dst.rgb + (1 - dst.a) * src.a * src.rgb;
             		//dst.a   = dst.a   + (1 - dst.a) * src.a;

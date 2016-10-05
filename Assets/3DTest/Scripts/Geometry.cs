@@ -30,11 +30,9 @@ public class Geometry : MonoBehaviour {
     [SerializeField] private int volumeDepth = 256;
 
 
+    private MeshRenderer myRenderer;
     private Texture3D _volumeBuffer;
-//    private Texture3D _normalBuffer;
-
-
-    private Color[] volumeColors;
+    private Color[] volumeNormalColors;
 
     private Material _mat;
 
@@ -45,8 +43,11 @@ public class Geometry : MonoBehaviour {
 	//TAG: TF END
 
 // Use this for initialization
-	void Start () {
+	void Start ()
+	{
 
+
+	    myRenderer = GetComponent<MeshRenderer>();
 
 	    //TODO see how to programatically load raw textures in Unity
 	    if (slices == null)
@@ -63,20 +64,46 @@ public class Geometry : MonoBehaviour {
 
 	    //TODO merge volume and normal texture
 	    //volume is greyscale thus can be fitted in alpha component
-	    GenerateVolumeTexture();
-//	    GenerateVolumeNormal(1);
+	    GenerateVolumeAndNormal(1);
+
 
 
 
 	}
 
 
+    private float timeToChange = 10.0f;
+    private float acc = 0;
+    private Vector3 start = new Vector3(0.5f,0.0f,0.5f);
+    private Vector3 end = new Vector3(0.5f,0.8f,0.5f);
+
     // Update is called once per frame
 	void Update () {
 
 
 
-        transform.Rotate(Vector3.up,100* Time.deltaTime);
+
+
+	    if (acc > timeToChange)
+	    {
+	        acc = 0;
+	        Vector3 temp = start;
+	        start = end;
+	        end = temp;
+	    }
+	    else
+	    {
+	        acc += Time.deltaTime;
+
+
+	    }
+
+        Debug.Log("vector is " + Vector3.Lerp(start,end,acc/timeToChange));
+	    myRenderer.material.SetVector("L",Vector3.Lerp(start,end,acc/timeToChange));
+
+//	    transform.Rotate(Vector3.up,100* Time.deltaTime);
+
+
 
 
 
@@ -93,17 +120,14 @@ public class Geometry : MonoBehaviour {
         {
             Destroy(_transferBuffer);
         }
-//        if (_normalBuffer != null)
-//        {
-//            Destroy(_normalBuffer);
-//        }
+
 }
 
 
-    private void GenerateVolumeTexture()
+    private void GenerateVolumeAndNormal(int sampleSize)
     {
-        // sort
-        System.Array.Sort(slices, (x, y) => x.name.CompareTo(y.name));
+
+
 
 		// TAG: TF BEGIN
 		System.Array.Sort (controlPoints, (x, y) => x.isoValue.CompareTo (y.isoValue));
@@ -119,9 +143,7 @@ public class Geometry : MonoBehaviour {
 				float t = j - st;
 
 				t /= en - st + 1;
-				tsf [j] = Color.Lerp (a, b, t); 
-//				Debug.Log (a + " " + b + " " + t);
-//				Debug.Log (j + " " + tsf [j]);
+				tsf [j] = Color.Lerp (a, b, t);
 			}
 		}
 		tsf [255] = controlPoints [controlPoints.Length - 1].color;
@@ -130,7 +152,10 @@ public class Geometry : MonoBehaviour {
         // TAG: TF END
 
         //TODO last arguement mipmapping refer graphics runner
-	    _volumeBuffer = new Texture3D(volumeWidth, volumeHeight, volumeDepth, TextureFormat.ARGB32, false);
+
+        // sort
+        System.Array.Sort(slices, (x, y) => x.name.CompareTo(y.name));
+        _volumeBuffer = new Texture3D(volumeWidth, volumeHeight, volumeDepth, TextureFormat.ARGB32, false);
 
         var w = _volumeBuffer.width;
         var h = _volumeBuffer.height;
@@ -141,32 +166,71 @@ public class Geometry : MonoBehaviour {
 //        skip some slices if we can't fit it all in
         var countOffset = (slices.Length - 1) / (float) d;
 
-        volumeColors = new Color[w * h * d];
+        volumeNormalColors = new Color[w * h * d];
 
         var sliceCount = 0;
         var sliceCountFloat = 0f;
+
+
+        //fill in colors
         for (int z = 0; z < d; z++)
         {
             sliceCountFloat += countOffset;
             sliceCount = Mathf.FloorToInt(sliceCountFloat);
-
 
             for (int y = 0; y < h; y++)
             {
                 for (int x = 0; x < w; x++)
                 {
                         var idx = x + y * w + z * w * h;
-                        volumeColors[idx] = slices[sliceCount].GetPixelBilinear(x / (float) w, y / (float) h);
+                        //store the greyscale value in alpha of 3D Texture
+                        volumeNormalColors[idx].a = slices[sliceCount].GetPixelBilinear(x / (float) w, y / (float) h).r;
 
                 }
             }
         }
 
-        _volumeBuffer.SetPixels(volumeColors);
+
+        int n = sampleSize;
+        Vector3 s1, s2;
+        //fill in normal vectors
+        for (int z = 0; z < d; z++)
+        {
+            for (int y = 0; y < h; y++)
+            {
+                for (int x = 0; x < w; x++)
+                {
+                    var idx = x + y * w + z * w * h;
+                        s1.x = sampleVolume(x - n, y, z);
+                        s2.x = sampleVolume(x + n, y, z);
+                        s1.y = sampleVolume(x, y - n, z);
+                        s2.y = sampleVolume(x, y + n, z);
+                        s1.z = sampleVolume(x, y, z - n);
+                        s2.z = sampleVolume(x, y, z + n);
+                        var vec = Vector3.Normalize(s2 - s1);
+                        volumeNormalColors[idx].r = vec.x;
+                        volumeNormalColors[idx].g = vec.y;
+                        volumeNormalColors[idx].b = vec.z;
+                        //TODO check this with priyanshu
+                        if (float.IsNaN(volumeNormalColors[idx].r))
+                            volumeNormalColors[idx] = new Color(0,0,0,volumeNormalColors[idx].a);
+
+
+
+                }
+            }
+        }
+
+
+
+
+
+        _volumeBuffer.SetPixels(volumeNormalColors);
         _volumeBuffer.Apply();
-        GetComponent<MeshRenderer>().material.SetTexture("_Volume", _volumeBuffer);
-		//TAG: TF BEGIN
-		GetComponent<MeshRenderer> ().material.SetTexture ("_transferF", _transferBuffer); 
+        myRenderer.material.SetTexture("_Volume", _volumeBuffer);
+
+        //TAG: TF BEGIN
+        myRenderer.material.SetTexture ("_transferF", _transferBuffer);
         //TAG: TF END
 
 
@@ -175,62 +239,14 @@ public class Geometry : MonoBehaviour {
         slices = null;
 
     }
-    private void GenerateVolumeNormal(int sampleSize)
-    {
 
-
-        int n = sampleSize;
-//        _normalBuffer = new Texture3D(volumeWidth, volumeHeight, volumeDepth, TextureFormat.ARGB32, false);
-
-        var w = _volumeBuffer.width;
-        var h = _volumeBuffer.height;
-        var d = _volumeBuffer.depth;
-
-
-
-        var gradients = new Color[w * h * d];
-
-        Vector3 s1, s2;
-
-        int index = 0;
-        for (int z = 0; z < d; z++)
-        {
-            for (int y = 0; y < h; y++)
-            {
-                for (int x = 0; x < w; x++)
-                {
-                    s1.x = sampleVolume(x - n, y, z);
-                    s2.x = sampleVolume(x + n, y, z);
-                    s1.y = sampleVolume(x, y - n, z);
-                    s2.y = sampleVolume(x, y + n, z);
-                    s1.z = sampleVolume(x, y, z - n);
-                    s2.z = sampleVolume(x, y, z + n);
-                    var vec = Vector3.Normalize(s2 - s1);
-                    gradients[index].r = vec.x;
-                    gradients[index].g = vec.y;
-                    gradients[index++].b = vec.z;
-                    //TODO discuss this if
-                    if (float.IsNaN(gradients[index - 1].r))
-                        gradients[index - 1] = Color.black;
-                }
-            }
-        }
-//
-//        _normalBuffer.SetPixels(gradients);
-//        _normalBuffer.Apply();
-//        GetComponent<MeshRenderer>().material.SetTexture("_Normal", _normalBuffer);
-//
-//
-
-
-    }
     private float sampleVolume(int x, int y, int z)
     {
-        x = Mathf.Clamp(x, 0, _volumeBuffer.height - 1);
+        x = Mathf.Clamp(x, 0, _volumeBuffer.width - 1);
         y = Mathf.Clamp(y, 0, _volumeBuffer.height - 1);
         z = Mathf.Clamp(z, 0, _volumeBuffer.depth - 1);
         //accessing r can access any one here for greyscale value
-        return volumeColors[x + y * _volumeBuffer.height + z *_volumeBuffer.width * _volumeBuffer.height].r;
+        return volumeNormalColors[x + y * _volumeBuffer.height + z *_volumeBuffer.width * _volumeBuffer.height].a;
     }
 
 
