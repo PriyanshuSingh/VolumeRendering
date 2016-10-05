@@ -11,7 +11,7 @@ public class Marcher : MonoBehaviour {
     private LayerMask volumeLayer;
 
     //reference to the material of the volume
-    [SerializeField]
+//    [SerializeField]
     private Material volumeMaterial;
 
 
@@ -37,10 +37,10 @@ public class Marcher : MonoBehaviour {
 
 
         var cube = GameObject.FindGameObjectWithTag("ProxyCube");
-        if (cube != null)
-        {
-            Debug.Log("found cube");
-        }
+//        if (cube != null)
+//        {
+//            Debug.Log("found cube");
+//        }
         Assert.IsTrue(cube != null);
         volumeMaterial = cube.GetComponent<MeshRenderer>().material;
 
