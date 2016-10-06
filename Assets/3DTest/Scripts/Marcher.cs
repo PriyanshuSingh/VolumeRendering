@@ -29,6 +29,12 @@ public class Marcher : MonoBehaviour {
 
 
 
+    public float scaleX = 0.1f;
+    public float scaleZ = 0.1f;
+
+
+
+
     // Use this for initialization
     private void Start()
     {
@@ -45,16 +51,36 @@ public class Marcher : MonoBehaviour {
         volumeMaterial = cube.GetComponent<MeshRenderer>().material;
 
     }
-	
-	// Update is called once per frame
+
+    public float speedH = 2.0f;
+    public float speedV = 2.0f;
+
+    private float yaw = 0.0f;
+    private float pitch = 0.0f;
+
+
+    // Update is called once per frame
 	private void Update(){
-	    float xAxisValue = Input.GetAxis("Horizontal");
-	    float zAxisValue = Input.GetAxis("Vertical");
+	    float xAxisValue = Input.GetAxis("Horizontal")*scaleX;
+	    float zAxisValue = Input.GetAxis("Vertical")*scaleZ;
 //	    if (Camera.current != null)
 //	    {
 	        _origCam.transform.Translate(new Vector3(xAxisValue, 0.0f, zAxisValue));
 //	    }
 
+
+
+
+
+	    if (Input.GetMouseButton(0))
+	    {
+	        yaw += speedH * Input.GetAxis("Mouse X");
+	        pitch -= speedV * Input.GetAxis("Mouse Y");
+
+
+	        transform.eulerAngles = new Vector3(pitch, yaw, 0.0f);
+
+	    }
 
 	}
 
@@ -87,9 +113,23 @@ public class Marcher : MonoBehaviour {
         Assert.IsTrue(SystemInfo.SupportsRenderTextureFormat(RenderTextureFormat.ARGB32));
 
         //render depths
-        var frontDepth = RenderTexture.GetTemporary(source.width, source.height, 0, RenderTextureFormat.ARGBFloat);
+//        var frontDepth = RenderTexture.GetTemporary(source.width, source.height, 0, RenderTextureFormat.ARGBFloat);
         var backDepth =  RenderTexture.GetTemporary(source.width, source.height, 0, RenderTextureFormat.ARGBFloat);
 
+        backDepth.filterMode = FilterMode.Bilinear;
+        backDepth.wrapMode = TextureWrapMode.Clamp;
+
+
+
+
+//        Texture = <Back>;
+//        MinFilter = LINEAR;
+//        MagFilter = LINEAR;
+//        MipFilter = LINEAR;
+//
+//        AddressU = Border;				// border sampling in U
+//        AddressV = Border;				// border sampling in V
+//        BorderColor = float4(0,0,0,0);	// outside of border should be black
 
         //Two pass render
         //render with replaced shaders
@@ -132,7 +172,7 @@ public class Marcher : MonoBehaviour {
 
 
 
-        RenderTexture.ReleaseTemporary(frontDepth);
+//        RenderTexture.ReleaseTemporary(frontDepth);
         RenderTexture.ReleaseTemporary(backDepth);
 
 

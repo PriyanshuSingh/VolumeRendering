@@ -149,6 +149,7 @@ public class Geometry : MonoBehaviour {
 		tsf [255] = controlPoints [controlPoints.Length - 1].color;
 		_transferBuffer.SetPixels (tsf);
 		_transferBuffer.Apply();
+        _transferBuffer.wrapMode = TextureWrapMode.Clamp;
         // TAG: TF END
 
         //TODO last arguement mipmapping refer graphics runner
@@ -227,6 +228,9 @@ public class Geometry : MonoBehaviour {
 
         _volumeBuffer.SetPixels(volumeNormalColors);
         _volumeBuffer.Apply();
+        //TODO this eliminates some of problem but currently no way to have border sampling in Unity3D
+        //porbably just add a border of black voxels around
+        _volumeBuffer.wrapMode = TextureWrapMode.Clamp;
         myRenderer.material.SetTexture("_Volume", _volumeBuffer);
 
         //TAG: TF BEGIN

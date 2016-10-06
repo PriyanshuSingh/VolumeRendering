@@ -159,7 +159,7 @@
             		src = (float4)normal.a;
             		normal.a = 0;
             		//TAG: TF BEGIN
-            		src.rgb = tex2Dlod(_transferF, float4(src.r, 0.5f, 0, 0)).rgb;
+            		//src.rgb = tex2Dlod(_transferF, float4(src.r, 0.5f, 0, 0)).rgb;
             		//TAG: TF END
 
             		src.a *= .1f; //reduce the alpha to have a more transparent result
@@ -170,7 +170,7 @@
 
                     float s = max(dot(normal.xyz,normalize(pos-L)),0);
                     //diffuse shading + fake ambient lighting
-                    src.rgb = s * src.rgb;
+                    //src.rgb = s * src.rgb;
                     //+ .1f * src.rgb;
             		//Front to back blending
             		//dst.rgb = dst.rgb + (1 - dst.a) * src.a * src.rgb;
