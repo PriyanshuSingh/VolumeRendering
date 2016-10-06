@@ -59,28 +59,11 @@ public class Marcher : MonoBehaviour {
     private float pitch = 0.0f;
 
 
-    // Update is called once per frame
 	private void Update(){
 	    float xAxisValue = Input.GetAxis("Horizontal")*scaleX;
 	    float zAxisValue = Input.GetAxis("Vertical")*scaleZ;
-//	    if (Camera.current != null)
-//	    {
-	        _origCam.transform.Translate(new Vector3(xAxisValue, 0.0f, zAxisValue));
-//	    }
+        _origCam.transform.Translate(new Vector3(xAxisValue, 0.0f, zAxisValue));
 
-
-
-
-
-	    if (Input.GetMouseButton(0))
-	    {
-	        yaw += speedH * Input.GetAxis("Mouse X");
-	        pitch -= speedV * Input.GetAxis("Mouse Y");
-
-
-	        transform.eulerAngles = new Vector3(pitch, yaw, 0.0f);
-
-	    }
 
 	}
 
@@ -113,7 +96,6 @@ public class Marcher : MonoBehaviour {
         Assert.IsTrue(SystemInfo.SupportsRenderTextureFormat(RenderTextureFormat.ARGB32));
 
         //render depths
-//        var frontDepth = RenderTexture.GetTemporary(source.width, source.height, 0, RenderTextureFormat.ARGBFloat);
         var backDepth =  RenderTexture.GetTemporary(source.width, source.height, 0, RenderTextureFormat.ARGBFloat);
 
         backDepth.filterMode = FilterMode.Bilinear;
@@ -122,57 +104,20 @@ public class Marcher : MonoBehaviour {
 
 
 
-//        Texture = <Back>;
-//        MinFilter = LINEAR;
-//        MagFilter = LINEAR;
-//        MipFilter = LINEAR;
-//
-//        AddressU = Border;				// border sampling in U
-//        AddressV = Border;				// border sampling in V
-//        BorderColor = float4(0,0,0,0);	// outside of border should be black
 
-        //Two pass render
-        //render with replaced shaders
-//        _cam2.targetTexture = frontDepth;
-//        _cam2.RenderWithShader(renderFrontDepthShader, "RenderType");
-//        _cam2.targetTexture = backDepth;
-//        _cam2.RenderWithShader(renderBackDepthShader, "RenderType");
 
 
 
 //Only Back Pass Render
         //TODO this causes 1 frame lag between the uniforms being updated and used by the volume
         //render with replaced shaders
-//        _cam2.targetTexture = frontDepth;
-//        _cam2.RenderWithShader(renderFrontDepthShader, "RenderType");
         _cam2.targetTexture = backDepth;
         _cam2.RenderWithShader(renderBackDepthShader, "RenderType");
 
 
 
-
-
-        //TODO see raymarcher shader parameters
-
-
-
-//        var cube = GameObject.FindGameObjectWithTag("ProxyCube");
-//        volumeMaterial = cube.GetComponent<MeshRenderer>().material ;
-
-
-
-
         //assign uniform values in the Volume material
         volumeMaterial.SetTexture("_BackTex",backDepth);
-
-
-
-
-
-
-
-
-//        RenderTexture.ReleaseTemporary(frontDepth);
         RenderTexture.ReleaseTemporary(backDepth);
 
 

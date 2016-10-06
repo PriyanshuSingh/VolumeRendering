@@ -33,7 +33,7 @@ public class Geometry : MonoBehaviour {
     private MeshRenderer myRenderer;
     private Texture3D _volumeBuffer;
     private Color[] volumeNormalColors;
-
+    private Transform dirLightTransform;
     private Material _mat;
 
 	//TAG: TF BEGIN
@@ -49,6 +49,10 @@ public class Geometry : MonoBehaviour {
 
 	    myRenderer = GetComponent<MeshRenderer>();
 
+
+
+	    dirLightTransform = GameObject.FindGameObjectWithTag("DirLight").transform;
+
 	    //TODO see how to programatically load raw textures in Unity
 	    if (slices == null)
 	    {
@@ -59,6 +63,9 @@ public class Geometry : MonoBehaviour {
 	    {
 //	        Debug.Log("size of slices " + slices.Length);
 	    }
+
+
+
 
 
 
@@ -98,10 +105,15 @@ public class Geometry : MonoBehaviour {
 
 	    }
 
-        Debug.Log("vector is " + Vector3.Lerp(start,end,acc/timeToChange));
-	    myRenderer.material.SetVector("L",Vector3.Lerp(start,end,acc/timeToChange));
 
-//	    transform.Rotate(Vector3.up,100* Time.deltaTime);
+	    //TODO currently Idenity if stays this remove this multiplication
+	    Matrix4x4 lightInverter = transform.worldToLocalMatrix;
+	    myRenderer.material.SetVector("L",lightInverter.MultiplyVector(dirLightTransform.forward));
+
+
+
+
+
 
 
 
