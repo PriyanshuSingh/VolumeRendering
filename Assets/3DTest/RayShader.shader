@@ -162,7 +162,7 @@
             		src.rgb = tex2Dlod(_transferF, float4(src.r, 0.5f, 0, 0)).rgb;
             		//TAG: TF END
 
-            		src.a *= .1f; //reduce the alpha to have a more transparent result
+            		src.a *= .3f; //reduce the alpha to have a more transparent result
             					  //this needs to be adjusted based on the step size
             					  //i.e. the more steps we take, the faster the alpha will grow
 
@@ -172,10 +172,16 @@
                     //dst.rgb = dst.rgb + (1 - dst.a) * src.a * src.rgb;
                     //dst.a   = dst.a   + (1 - dst.a) * src.a;
 
+
+                    float3 viewDir = normalize(_WorldSpaceCameraPos-(2*input.texC-float3(1,1,1)));
                     //working with directiona light
-                    float s = max(dot(normal.xyz,L),0);
-                    //diffuse shading + fake ambient lighting
-                    src.rgb = s*src.rgb + 0.4f * src.rgb;
+                    float ambientreff = 0.4f;
+                    float diffref = max(dot(normal.xyz,L),0);
+                    fixed3 reflecVec = normalize(L-2*normal*dot(normal,L));
+                    float3 specref = max(dot(viewDir,reflecVec),0);
+                    //specular +diffuse shading + ambient lighting
+
+                    src.rgb *= (specref+diffref+ambientreff);
             		src.rgb *= src.a;
             		dst = (1.0f - dst.a)*src + dst;
 
