@@ -159,7 +159,7 @@
             		src = (float4)normal.a;
             		normal.a = 0;
             		//TAG: TF BEGIN
-            		src.rgb = tex2Dlod(_transferF, float4(src.r, 0.5f, 0, 0)).rgb;
+            		src = tex2Dlod(_transferF, float4(src.r, 0.5f, 0, 0));
             		//TAG: TF END
 
             		src.a *= .3f; //reduce the alpha to have a more transparent result
