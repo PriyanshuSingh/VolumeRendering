@@ -123,7 +123,7 @@ Shader "VolumeRendering/RayShader"
             //use uniforms to define these vars later
 			#define Iterations 128
 			#define StepSize 1.0f/128.0f
-
+			#define BaseStepSize 0.5
 
 
             float4 RayCastSimplePS(VertexShaderOutput input) : COLOR0
@@ -164,10 +164,10 @@ Shader "VolumeRendering/RayShader"
             		src = (float4)normal.a;
             		normal.a = 0;
             		//TAG: TF BEGIN
-            		//src.rgb = tex2Dlod(_transferF, float4(src.r, 0.5f, 0, 0)).rgb;
+            		src.rgb = tex2Dlod(_transferF, float4(src.r, 0.5f, 0, 0)).rgb;
             		//TAG: TF END
 
-            		src.a *= .1f; //reduce the alpha to have a more transparent result
+            		src.a *= .3f; //reduce the alpha to have a more transparent result
             					  //this needs to be adjusted based on the step size
             					  //i.e. the more steps we take, the faster the alpha will grow
 
@@ -196,9 +196,8 @@ Shader "VolumeRendering/RayShader"
                     //specular +diffuse shading + ambient lighting
                     //src.rgb *= (specref+diffref+ambientreff);
                     src.rgb *=specref+ambientreff;
+                    src.rgb *= src.a;
 
-
-            		src.rgb *= src.a;
             		dst = (1.0f - dst.a)*src + dst;
 
             		//break from the loop when alpha gets high enough
