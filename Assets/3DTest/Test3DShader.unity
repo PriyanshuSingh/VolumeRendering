@@ -536,8 +536,8 @@ MonoBehaviour:
   - {fileID: 2800000, guid: dde605ef12706fa4abe2234b4f1cda0e, type: 3}
   - {fileID: 2800000, guid: ab5f0eef239953746925d72f700de631, type: 3}
   - {fileID: 2800000, guid: 720315ff389c4424e935602ba3437031, type: 3}
-  volumeWidth: 256
-  volumeHeight: 256
+  volumeWidth: 512
+  volumeHeight: 512
   volumeDepth: 256
   controlPoints:
   - color: {r: 0, g: 0, b: 0, a: 0}

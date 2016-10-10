@@ -108,7 +108,7 @@ public class Geometry : MonoBehaviour {
 
 	    //TODO currently Idenity if stays this remove this multiplication
 //	    Matrix4x4 lightInverter = transform.worldToLocalMatrix;
-	    myRenderer.material.SetVector("L",Vector3.Normalize(dirLightTransform.forward));
+	    myRenderer.material.SetVector("L",Vector3.Normalize(-dirLightTransform.forward));
 
 
 
@@ -167,12 +167,13 @@ public class Geometry : MonoBehaviour {
         //TODO last arguement mipmapping refer graphics runner
 
         // sort
-        System.Array.Sort(slices, (x, y) => x.name.CompareTo(y.name));
+        System.Array.Sort(slices, (x, y) => int.Parse(x.name).CompareTo(int.Parse(y.name)));
         _volumeBuffer = new Texture3D(volumeWidth, volumeHeight, volumeDepth, TextureFormat.ARGB32, false);
 
         var w = _volumeBuffer.width;
         var h = _volumeBuffer.height;
         var d = _volumeBuffer.depth;
+
 
 
 
@@ -188,6 +189,7 @@ public class Geometry : MonoBehaviour {
         //fill in colors
         for (int z = 0; z < d; z++)
         {
+            //TODO interpolate between textures based on this factor
             sliceCountFloat += countOffset;
             sliceCount = Mathf.FloorToInt(sliceCountFloat);
 
@@ -196,12 +198,22 @@ public class Geometry : MonoBehaviour {
                 for (int x = 0; x < w; x++)
                 {
                         var idx = x + y * w + z * w * h;
+
+
+
+                    if (x<2 || y<2  || x > w - 3 || y > h - 3)
+                        volumeNormalColors[idx].a = 0;
+                    else
                         //store the greyscale value in alpha of 3D Texture
                         volumeNormalColors[idx].a = slices[sliceCount].GetPixelBilinear(x / (float) w, y / (float) h).r;
+
 
                 }
             }
         }
+
+
+
 
 
         int n = sampleSize;
@@ -234,6 +246,10 @@ public class Geometry : MonoBehaviour {
             }
         }
 
+//        filterNxNxN(3);
+
+
+
 
 
 
@@ -264,6 +280,65 @@ public class Geometry : MonoBehaviour {
         //accessing r can access any one here for greyscale value
         return volumeNormalColors[x + y * _volumeBuffer.height + z *_volumeBuffer.width * _volumeBuffer.height].a;
     }
+
+    private void filterNxNxN(int n)
+    {
+        int index = 0;
+        for (int z = 0; z < _volumeBuffer.depth; z++)
+        {
+            for (int y = 0; y < _volumeBuffer.height; y++)
+            {
+                for (int x = 0; x < _volumeBuffer.width; x++,index++)
+                {
+                    var sampleResult = sampleNxNxN(x, y, z, n);
+                    volumeNormalColors[index].r = sampleResult.x;
+                    volumeNormalColors[index].g = sampleResult.y;
+                    volumeNormalColors[index].b = sampleResult.z;
+
+                }
+            }
+        }
+    }
+    private bool isInBounds(int x, int y, int z)
+    {
+        return  x >= 0 && x < _volumeBuffer.width && y >= 0 && y < _volumeBuffer.height &&  z >= 0 && z < _volumeBuffer.depth;
+    }
+
+    private Vector3 sampleNxNxN(int x, int y, int z, int n)
+    {
+        n = (n - 1) / 2;
+
+        Vector3 average = Vector3.zero;
+        int num = 0;
+
+        for (int k = z - n; k <= z + n; k++)
+        {
+            for (int j = y - n; j <= y + n; j++)
+            {
+                for (int i = x - n; i <= x + n; i++)
+                {
+                    if (isInBounds(i, j, k))
+                    {
+                        average += sampleGradients(i, j, k);
+                        num++;
+                    }
+                }
+            }
+        }
+
+        average /= (float)num;
+        if (average.x != 0.0f && average.y != 0.0f && average.z != 0.0f)
+            average.Normalize();
+
+        return average;
+    }
+
+    private Vector3 sampleGradients(int x, int y, int z)
+    {
+        var v = volumeNormalColors[x + y * _volumeBuffer.width + z * _volumeBuffer.height * _volumeBuffer.width];
+        return new Vector3(v.r,v.g,v.b);
+    }
+
 
 
 }

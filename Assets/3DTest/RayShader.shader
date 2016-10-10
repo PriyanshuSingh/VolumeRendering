@@ -178,15 +178,26 @@ Shader "VolumeRendering/RayShader"
                     //dst.a   = dst.a   + (1 - dst.a) * src.a;
 
 
-                    float3 viewDir = normalize(_WorldSpaceCameraPos-input.wPos);
-                    //working with directiona light
-                    float ambientreff = 0.4f;
-                    float diffref = max(dot(normal.xyz,L),0);
-                    fixed3 reflecVec = normalize(L-2*normal*dot(normal,L));
-                    float3 specref = max(dot(viewDir,reflecVec),0);
-                    //specular +diffuse shading + ambient lighting
 
+
+                    float3 lightDir = L;
+                    float3 reflecVec = normalize(2*normal*dot(normal,lightDir)-lightDir);
+                    float3 viewDir = normalize(_WorldSpaceCameraPos-input.wPos);
+
+                    float diffref = max(0, dot(normal,lightDir));
+                    float specref = 0;
+                    //check if light is on right side
+                    if(diffref > 0){
+                        specref = pow(max(dot(viewDir,reflecVec),0),1);
+                    }
+
+
+                    float ambientreff = 0.4f;
+                    //specular +diffuse shading + ambient lighting
                     //src.rgb *= (specref+diffref+ambientreff);
+                    src.rgb *=specref+ambientreff;
+
+
             		src.rgb *= src.a;
             		dst = (1.0f - dst.a)*src + dst;
 
