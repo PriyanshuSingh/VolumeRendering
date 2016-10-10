@@ -143,10 +143,10 @@ public class Geometry : MonoBehaviour {
 
 
 		mColorKnots = new List<ControlPoint> {
-			new ControlPoint(0.0f, .7f, .61f, 0),
-			new ControlPoint(0.0f, .7f, .61f, 200),
-			new ControlPoint(1.0f, 0.0f, .85f, 202),
-			new ControlPoint(1.0f, 0.0f, .85f, 256)
+			new ControlPoint(0.91f, .7f, .61f, 0),
+			new ControlPoint(0.91f, .7f, .61f, 80),
+			new ControlPoint(1.0f, 1.0f, .85f, 82),
+			new ControlPoint(1.0f, 1.0f, .85f, 256)
 		};
 
 		mAlphaKnots = new List<ControlPoint> {
@@ -154,8 +154,8 @@ public class Geometry : MonoBehaviour {
 			new ControlPoint(0.0f, 40),
 			new ControlPoint(0.2f, 60),
 			new ControlPoint(0.05f, 63),
-			new ControlPoint(0.0f, 200),
-			new ControlPoint(0.9f, 202),
+			new ControlPoint(0.0f, 80),
+			new ControlPoint(0.9f, 82),
 			new ControlPoint(1.0f, 256)
 		};
 
@@ -277,11 +277,11 @@ public class Geometry : MonoBehaviour {
 		Color[] data = new Color [256];
 
 		for (int i = 0; i < 256; i++) {
-			Vector4 color = transferFunc [i] * 255.0f;
-			data [i].r = (int)Mathf.Clamp (color.x, 0, 255.0f);
-			data [i].g = (int)Mathf.Clamp(color.y, 0, 255.0f);
-			data [i].b = (int)Mathf.Clamp(color.z, 0, 255.0f);
-			data [i].a = (int)Mathf.Clamp(color.w, 0, 255.0f);
+			Vector4 color = transferFunc [i];
+			data [i].r = Mathf.Clamp (color.x, 0, 1.0f);
+			data [i].g = Mathf.Clamp(color.y, 0, 1.0f);
+			data [i].b = Mathf.Clamp(color.z, 0, 1.0f);
+			data [i].a = Mathf.Clamp(color.w, 0, 1.0f);
 			Debug.Log ("data at " + i + " is " + data [i]); 
 		}
 		_transferBuffer = new Texture2D (256, 1, TextureFormat.ARGB32, false);
@@ -301,7 +301,8 @@ public class Geometry : MonoBehaviour {
         //TODO last arguement mipmapping refer graphics runner
 
         // sort
-		System.Array.Sort(slices, (x, y) => int.Parse(x.name).CompareTo(int.Parse(y.name)));
+		System.Array.Sort(slices, (x, y) => x.name.CompareTo(y.name));
+//		System.Array.Sort(slices, (x, y) => int.Parse(x.name).CompareTo(int.Parse(y.name)));
         _volumeBuffer = new Texture3D(volumeWidth, volumeHeight, volumeDepth, TextureFormat.ARGB32, false);
 
         var w = _volumeBuffer.width;
