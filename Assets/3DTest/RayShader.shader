@@ -1,4 +1,6 @@
-﻿Shader "VolumeRendering/RayShader"
+﻿// Upgrade NOTE: replaced '_Object2World' with 'unity_ObjectToWorld'
+
+Shader "VolumeRendering/RayShader"
 {
 
 
@@ -94,6 +96,9 @@
                 float4 Position		: POSITION0;
                 float3 texC			: TEXCOORD0;
                 float4 pos			: TEXCOORD1;
+                float3 wPos			: TEXCOORD2;
+
+
             };
 
 
@@ -107,7 +112,7 @@
                 output.Position = mul(UNITY_MATRIX_MVP, input.Position);
                 output.texC = input.Position*0.5 + 0.5;
                 output.pos = output.Position;
-
+                output.wPos  = mul(unity_ObjectToWorld,input.Position);
                 return output;
             }
 
@@ -162,7 +167,7 @@
             		//src.rgb = tex2Dlod(_transferF, float4(src.r, 0.5f, 0, 0)).rgb;
             		//TAG: TF END
 
-            		src.a *= .3f; //reduce the alpha to have a more transparent result
+            		src.a *= .1f; //reduce the alpha to have a more transparent result
             					  //this needs to be adjusted based on the step size
             					  //i.e. the more steps we take, the faster the alpha will grow
 
@@ -173,7 +178,7 @@
                     //dst.a   = dst.a   + (1 - dst.a) * src.a;
 
 
-                    float3 viewDir = normalize(_WorldSpaceCameraPos-(2*input.texC-float3(1,1,1)));
+                    float3 viewDir = normalize(_WorldSpaceCameraPos-input.wPos);
                     //working with directiona light
                     float ambientreff = 0.4f;
                     float diffref = max(dot(normal.xyz,L),0);
@@ -181,7 +186,7 @@
                     float3 specref = max(dot(viewDir,reflecVec),0);
                     //specular +diffuse shading + ambient lighting
 
-                    src.rgb *= (specref+diffref+ambientreff);
+                    //src.rgb *= (specref+diffref+ambientreff);
             		src.rgb *= src.a;
             		dst = (1.0f - dst.a)*src + dst;
 

@@ -57,7 +57,7 @@ public class Geometry : MonoBehaviour {
 	    if (slices == null)
 	    {
 
-//	        Debug.Log("failed to load textures");
+	        Debug.Log("failed to load textures");
 	    }
 	    else
 	    {
