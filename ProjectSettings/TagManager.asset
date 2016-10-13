@@ -6,6 +6,7 @@ TagManager:
   tags:
   - ProxyCube
   - DirLight
+  - Point
   layers:
   - Default
   - TransparentFX
