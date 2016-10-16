@@ -3,89 +3,7 @@ using System.Collections;
 using UnityEngine.Assertions;
 using System.Collections.Generic;
 
-// TAG: TF BEGIN
-using System;
-using System.CodeDom.Compiler;
 
-[Serializable]
-public class ControlPoint{
-    public Vector4 mColor;
-    public int mIsoValue;
-
-    public ControlPoint(float r, float g, float b, int isoValue){
-        mColor.x = r;
-        mColor.y = g;
-        mColor.z = b;
-        mIsoValue = isoValue;
-    }
-
-    public ControlPoint(float alpha, int isoValue){
-        mColor.x = mColor.y = mColor.z = 0.0f;
-        mColor.w = alpha;
-        mIsoValue = isoValue;
-    }
-
-}
-
-class Cubic{
-    private Vector4 a, b, c, d;
-    public Cubic(Vector4 a, Vector4 b, Vector4 c, Vector4 d){
-        this.a = a;
-        this.b = b;
-        this.c = c;
-        this.d = d;
-    }
-
-    public Vector4 getPointOnSpline(float s){
-        return (((d * s) + c) * s + b) * s + a;
-    }
-
-    private static Vector4 divide(Vector4 a, Vector4 b){
-        return new Vector4 (a.x / b.x, a.y / b.y, a.z / b.z, a.w / b.w);
-    }
-
-    private static Vector4 mult(Vector4 a, Vector4 b){
-        return new Vector4 (a.x * b.x, a.y * b.y, a.z * b.z, a.w * b.w);
-    }
-
-    public static Cubic[] calculateCubicSpline(int n, List<ControlPoint> v){
-        Vector4[] gamma = new Vector4[n + 1];
-        Vector4[] delta = new Vector4[n + 1];
-        Vector4[] D = new Vector4[n + 1];
-        int i;
-
-        gamma [0] = Vector4.zero;
-        gamma [0].x = 1.0f / 2.0f;
-        gamma [0].y = 1.0f / 2.0f;
-        gamma [0].z = 1.0f / 2.0f;
-        gamma [0].w = 1.0f / 2.0f;
-        for( i = 1; i < n; i++){
-            gamma[i] = divide(Vector4.one ,(4 * Vector4.one) - gamma[i - 1]);
-        }
-        gamma[n] = divide(Vector4.one , (2 * Vector4.one) - gamma[n - 1]);
-
-        delta[0] = 3 * mult(v[1].mColor - v[0].mColor , gamma[0]);
-        for (i = 1; i < n; i++) {
-            delta [i] = mult( 3 *(v [i + 1].mColor - v [i - 1].mColor) - delta [i - 1] , gamma [i]);
-        }
-        delta [n] = mult(3 * (v [n].mColor - v [n - 1].mColor) - delta [n - 1], gamma [n]);
-
-        D [n] = delta [n];
-        for (i = n - 1; i >= 0; i--) {
-            D [i] = delta [i] - mult(gamma [i] , D [i + 1]);
-        }
-
-        Cubic[] C = new Cubic[n];
-        for (i = 0; i < n; i++) {
-            C [i] = new Cubic (v [i].mColor, D [i], 3 * (v [i + 1].mColor - v [i].mColor) - 2 * D [i] - D [i + 1],
-                2 * (v [i].mColor - v [i + 1].mColor) + D [i] + D [i + 1]);
-        }
-        return C;
-    }
-}
-
-
-// TAG: TF END
 
 
 public class Geometry : MonoBehaviour {
@@ -110,10 +28,16 @@ public class Geometry : MonoBehaviour {
     private Material _mat;
 
 	//TAG: TF BEGIN
-	private Texture2D _transferBuffer;
-	private List<ControlPoint> mAlphaKnots;
-    private List<ControlPoint> mColorKnots;
+	public Texture2D _transferBuffer;
+
     //TAG: TF END
+
+	public Texture2D getTransferBuffer(){
+		if (_transferBuffer == null) {
+			_transferBuffer = new Texture2D (256, 1, TextureFormat.ARGB32, false);
+		}
+		return _transferBuffer;
+	}
 
 // Use this for initialization
 	void Start ()
@@ -140,24 +64,9 @@ public class Geometry : MonoBehaviour {
 
 
 
-	    mColorKnots = new List<ControlPoint> {
-	        new ControlPoint(0.91f, .7f, .61f, 0),
-	        new ControlPoint(0.91f, .7f, .61f, 80),
-	        new ControlPoint(1.0f, 1.0f, .85f, 82),
-	        new ControlPoint(1.0f, 1.0f, .85f, 256)
-	    };
 
-	    mAlphaKnots = new List<ControlPoint> {
-	        new ControlPoint(0.0f, 0),
-	        new ControlPoint(0.0f, 40),
-	        new ControlPoint(0.2f, 60),
-	        new ControlPoint(0.05f, 63),
-	        new ControlPoint(0.0f, 80),
-	        new ControlPoint(0.9f, 82),
-	        new ControlPoint(1.0f, 256)
-	    };
 
-	    computeTransferFunction ();
+		_transferBuffer = getTransferBuffer ();
 
 
 
@@ -170,53 +79,7 @@ public class Geometry : MonoBehaviour {
 
 	}
 
-    //TAG: TF BEGIN
-    private void computeTransferFunction(){
 
-
-        Vector4[] transferFunc = new Vector4[256];
-        List<ControlPoint> tempColorKnots = new List<ControlPoint> (mColorKnots);
-        List<ControlPoint> tempAlphaKnots = new List<ControlPoint> (mAlphaKnots);
-
-        Cubic[] colorCubic = Cubic.calculateCubicSpline (mColorKnots.Count - 1, tempColorKnots);
-        Cubic[] alphaCubic = Cubic.calculateCubicSpline (mAlphaKnots.Count - 1, tempAlphaKnots);
-
-        int numTF = 0;
-        for (int i = 0; i < mColorKnots.Count - 1; i++) {
-            int steps = mColorKnots [i + 1].mIsoValue - mColorKnots [i].mIsoValue;
-            for (int j = 0; j < steps; j++) {
-                float k = (float)j / (float)(steps - 1);
-                transferFunc [numTF++] = colorCubic [i].getPointOnSpline (k);
-            }
-        }
-
-        numTF = 0;
-        for (int i = 0; i < mAlphaKnots.Count - 1; i++) {
-            int steps = mAlphaKnots [i + 1].mIsoValue - mAlphaKnots [i].mIsoValue;
-            for (int j = 0; j < steps; j++) {
-                float k = (float)j / (float)(steps - 1);
-                transferFunc [numTF++].w = alphaCubic [i].getPointOnSpline (k).w;
-            }
-        }
-        Color[] data = new Color [256];
-
-        for (int i = 0; i < 256; i++) {
-            Vector4 color = transferFunc [i];
-            data [i].r = Mathf.Clamp (color.x, 0, 1.0f);
-            data [i].g = Mathf.Clamp(color.y, 0, 1.0f);
-            data [i].b = Mathf.Clamp(color.z, 0, 1.0f);
-            data [i].a = Mathf.Clamp(color.w, 0, 1.0f);
-            Debug.Log ("data at " + i + " is " + data [i]);
-        }
-        _transferBuffer = new Texture2D (256, 1, TextureFormat.ARGB32, false);
-        _transferBuffer.SetPixels (data);
-        _transferBuffer.Apply ();
-		_transferBuffer.wrapMode = TextureWrapMode.Clamp;
-
-        myRenderer.material.SetTexture ("_transferF", _transferBuffer);
-
-
-    }
 
 
     private float timeToChange = 10.0f;
@@ -251,6 +114,7 @@ public class Geometry : MonoBehaviour {
 	    myRenderer.material.SetVector("L",Vector3.Normalize(-dirLightTransform.forward));
 
 
+		myRenderer.material.SetTexture ("_transferF", _transferBuffer);
 
 
 

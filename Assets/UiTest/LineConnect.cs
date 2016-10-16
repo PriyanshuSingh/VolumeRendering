@@ -2,8 +2,6 @@
 using UnityEngine;
 using System.Collections;
 
-using UnityEngine;
-using System.Collections;
 using System.Linq;
 using UnityEngine.UI.Extensions;
 
@@ -35,10 +33,10 @@ public class LineConnect : MonoBehaviour {
 
         var parentScript = GetComponent<RectTransform>().parent.GetComponent<PointBag>();
 
-        Vector2 [] arr = new Vector2[parentScript.points.Count];
-        for (int i = 0; i < parentScript.points.Count; i++)
+		Vector2 [] arr = new Vector2[parentScript.linePoints.Count];
+		for (int i = 0; i < parentScript.linePoints.Count; i++)
         {
-            arr[i] = parentScript.points.ElementAt(i).GetComponent<RectTransform>().anchoredPosition;
+			arr [i] = parentScript.linePoints [i];
         }
 
         lineComp.Points = arr;
