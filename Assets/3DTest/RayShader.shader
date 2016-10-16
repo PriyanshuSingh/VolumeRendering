@@ -164,10 +164,10 @@ Shader "VolumeRendering/RayShader"
             		src = (float4)normal.a;
             		normal.a = 0;
             		//TAG: TF BEGIN
-            		src.rgb = tex2Dlod(_transferF, float4(src.r, 0.5f, 0, 0)).rgb;
+            		src = tex2Dlod(_transferF, float4(src.r, 0.5f, 0, 0));
             		//TAG: TF END
 
-            		src.a *= .3f; //reduce the alpha to have a more transparent result
+//            		src.a *= .3f; //reduce the alpha to have a more transparent result
             					  //this needs to be adjusted based on the step size
             					  //i.e. the more steps we take, the faster the alpha will grow
 

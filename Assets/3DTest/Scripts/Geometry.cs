@@ -112,8 +112,7 @@ public class Geometry : MonoBehaviour {
 	    //TODO currently Idenity if stays this remove this multiplication
 //	    Matrix4x4 lightInverter = transform.worldToLocalMatrix;
 	    myRenderer.material.SetVector("L",Vector3.Normalize(-dirLightTransform.forward));
-
-
+	
 		myRenderer.material.SetTexture ("_transferF", _transferBuffer);
 
 
