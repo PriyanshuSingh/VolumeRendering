@@ -117,7 +117,7 @@ public class PointBag : MonoBehaviour,IPointerClickHandler
 			tb = GameObject.FindGameObjectWithTag ("ProxyCube").GetComponent<Geometry> ().getTransferBuffer ();
 		}
 
-
+		GetComponent<CanvasRenderer> ().SetAlpha (0.25f);
 	    myRect = GetComponent<RectTransform>();
 	    points = new List<GameObject>();
 
