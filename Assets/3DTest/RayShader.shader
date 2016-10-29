@@ -121,8 +121,8 @@ Shader "VolumeRendering/RayShader"
 
 
             //use uniforms to define these vars later
-			#define Iterations 128
-			#define StepSize 1.0f/128.0f
+			#define Iterations 512
+			#define StepSize 1.0f/512.0f
 			#define BaseStepSize 0.5
 
 
