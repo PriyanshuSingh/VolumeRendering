@@ -71,6 +71,16 @@ public class Create3DTex : MonoBehaviour
 
 
 
+
+
+
+
+
+
+
+
+
+
     }
 
 

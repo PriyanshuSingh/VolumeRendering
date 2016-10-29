@@ -104,8 +104,9 @@ public class PointBag : MonoBehaviour,IPointerClickHandler
 
 	private List<ControlPoint> mAlphaKnots;
 	private List<ControlPoint> mColorKnots;
-	private Texture2D tb;
 
+
+    private Geometry geoScript;
 	public List<Vector2> linePoints;
 // Use this for initialization
 	void Start ()
@@ -113,9 +114,8 @@ public class PointBag : MonoBehaviour,IPointerClickHandler
 
 
 
-		if (tb == null) {
-			tb = GameObject.FindGameObjectWithTag ("ProxyCube").GetComponent<Geometry> ().getTransferBuffer ();
-		}
+	    geoScript = GameObject.FindGameObjectWithTag("ProxyCube").GetComponent<Geometry>();
+
 
 		GetComponent<CanvasRenderer> ().SetAlpha (0.25f);
 	    myRect = GetComponent<RectTransform>();
@@ -203,10 +203,9 @@ public class PointBag : MonoBehaviour,IPointerClickHandler
 			linePoints.Add (new Vector2 ((float)i / 256.0f * myRect.sizeDelta.x, data [i].a * myRect.sizeDelta.y));
 			Debug.Log ("data at " + i + " is " + data [i]);
 		}
-		//        _transferBuffer = new Texture2D (256, 1, TextureFormat.ARGB32, false);
-		tb.SetPixels (data);
-		tb.Apply ();
-		tb.wrapMode = TextureWrapMode.Clamp;
+
+
+	    geoScript.updateTransferBufer(data);
 
 
 	}
