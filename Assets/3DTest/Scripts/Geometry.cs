@@ -33,7 +33,9 @@ public class Geometry : MonoBehaviour {
     //TAG: TF END
 
 	private void initTransferBuffer(){
-		if (_transferBuffer == null) {
+		if (_transferBuffer == null)
+		{
+
 		    _transferBuffer = new Texture2D (256, 1, TextureFormat.ARGB32, false);
 		    _transferBuffer.filterMode = FilterMode.Bilinear;
 		    _transferBuffer.wrapMode = TextureWrapMode.Clamp;
@@ -159,7 +161,7 @@ public class Geometry : MonoBehaviour {
         //other volumes
 //        System.Array.Sort(slices, (x, y) => int.Parse(x.name).CompareTo(int.Parse(y.name)));
 
-        _volumeBuffer = new Texture3D(volumeWidth, volumeHeight, volumeDepth, TextureFormat.ARGB32, false);
+        _volumeBuffer = new Texture3D(volumeWidth, volumeHeight, volumeDepth, TextureFormat.RGBAFloat, false);
 
         var w = _volumeBuffer.width;
         var h = _volumeBuffer.height;
