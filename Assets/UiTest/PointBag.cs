@@ -108,37 +108,47 @@ public class PointBag : MonoBehaviour,IPointerClickHandler
 
     private Geometry geoScript;
 	public List<Vector2> linePoints;
+
+
+    void Awake()
+    {
+
+        GetComponent<CanvasRenderer> ().SetAlpha (0.25f);
+        myRect = GetComponent<RectTransform>();
+        points = new List<GameObject>();
+
+        Assert.IsTrue(pointPrefab !=null);
+
+        mColorKnots = new List<ControlPoint> {
+            new ControlPoint(0.91f, .7f, .61f, 0),
+            new ControlPoint(0.91f, .7f, .61f, 80),
+            new ControlPoint(1.0f, 1.0f, .85f, 82),
+            new ControlPoint(1.0f, 1.0f, .85f, 256)
+        };
+
+        mAlphaKnots = new List<ControlPoint> {
+            new ControlPoint(0.0f, 0),
+            new ControlPoint(0.0f, 40),
+            new ControlPoint(0.2f, 60),
+            new ControlPoint(0.05f, 63),
+            new ControlPoint(0.0f, 80),
+            new ControlPoint(0.9f, 82),
+            new ControlPoint(1.0f, 256)
+        };
+
+
+    }
 // Use this for initialization
 	void Start ()
 	{
 
 
 
+
+
+
 	    geoScript = GameObject.FindGameObjectWithTag("ProxyCube").GetComponent<Geometry>();
 
-
-		GetComponent<CanvasRenderer> ().SetAlpha (0.25f);
-	    myRect = GetComponent<RectTransform>();
-	    points = new List<GameObject>();
-
-	    Assert.IsTrue(pointPrefab !=null);
-
-		mColorKnots = new List<ControlPoint> {
-			new ControlPoint(0.91f, .7f, .61f, 0),
-			new ControlPoint(0.91f, .7f, .61f, 80),
-			new ControlPoint(1.0f, 1.0f, .85f, 82),
-			new ControlPoint(1.0f, 1.0f, .85f, 256)
-		};
-
-		mAlphaKnots = new List<ControlPoint> {
-			new ControlPoint(0.0f, 0),
-			new ControlPoint(0.0f, 40),
-			new ControlPoint(0.2f, 60),
-			new ControlPoint(0.05f, 63),
-			new ControlPoint(0.0f, 80),
-			new ControlPoint(0.9f, 82),
-			new ControlPoint(1.0f, 256)
-		};
 
 //		for (int i = 1; i < mAlphaKnots.Count-1; i++) {
 //			var point = Instantiate (pointPrefab);
@@ -201,7 +211,7 @@ public class PointBag : MonoBehaviour,IPointerClickHandler
 			data [i].b = Mathf.Clamp(color.z, 0, 1.0f);
 			data [i].a = Mathf.Clamp(color.w, 0, 1.0f);
 			linePoints.Add (new Vector2 ((float)i / 256.0f * myRect.sizeDelta.x, data [i].a * myRect.sizeDelta.y));
-			Debug.Log ("data at " + i + " is " + data [i]);
+//			Debug.Log ("data at " + i + " is " + data [i]);
 		}
 
 
@@ -232,8 +242,8 @@ public class PointBag : MonoBehaviour,IPointerClickHandler
 					continue;
 				mAlphaKnots.Add (new ControlPoint (1.0f * position.y / myRect.sizeDelta.y, x));
 
-				Debug.Log (position.y / myRect.sizeDelta.y);
-				Debug.Log (x);
+//				Debug.Log (position.y / myRect.sizeDelta.y);
+//				Debug.Log (x);
 			}
 			mAlphaKnots.Add (new ControlPoint (1.0f, 256));
 			computeTransferFunction ();

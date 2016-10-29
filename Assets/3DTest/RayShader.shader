@@ -125,6 +125,7 @@ Shader "VolumeRendering/RayShader"
 			#define StepSize 1.0f/512.0f
 			#define BaseStepSize 0.5
 
+            #define NormalDist  1.0f/256.0f
 
             float4 RayCastSimplePS(VertexShaderOutput input) : COLOR0
             {
@@ -160,12 +161,37 @@ Shader "VolumeRendering/RayShader"
             		pos.w = 0;
             		//get normal
             		normal = tex3Dlod(_Volume, pos);
+
                     //copy greyscale value to src
             		src = (float4)normal.a;
             		normal.a = 0;
             		//TAG: TF BEGIN
             		src = tex2Dlod(_transferF, float4(src.r, 0.5f, 0, 0));
             		//TAG: TF END
+
+
+
+
+
+                    float left = tex3Dlod(_Volume,pos+float4(-NormalDist,0,0,0)).a;
+                    float right = tex3Dlod(_Volume,pos+float4(NormalDist,0,0,0)).a;
+
+                    float up = tex3Dlod(_Volume,pos+float4(0,NormalDist,0,0)).a;
+                    float down = tex3Dlod(_Volume,pos+float4(0,-NormalDist,0,0)).a;
+
+                    float fr = tex3Dlod(_Volume,pos+float4(0,0,NormalDist,0)).a;
+                    float ba = tex3Dlod(_Volume,pos+float4(0,0,-NormalDist,0)).a;
+                    normal.x = right-left;
+                    normal.y = up-down;
+                    normal.z = fr-ba;
+                    if(normal.x == 0.0f && normal.y == 0.0f && normal.z == 0.0f){
+                        normal = (float4)0;
+                    }
+                    else{
+                        normal = normalize(normal);
+                    }
+
+
 
 //            		src.a *= .3f; //reduce the alpha to have a more transparent result
             					  //this needs to be adjusted based on the step size

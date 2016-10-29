@@ -28,23 +28,31 @@ public class Geometry : MonoBehaviour {
     private Material _mat;
 
 	//TAG: TF BEGIN
-	public Texture2D _transferBuffer;
+	public Texture2D _transferBuffer ;
 
     //TAG: TF END
 
-	public Texture2D getTransferBuffer(){
+	private void initTransferBuffer(){
 		if (_transferBuffer == null) {
-			_transferBuffer = new Texture2D (256, 1, TextureFormat.ARGB32, false);
+		    _transferBuffer = new Texture2D (256, 1, TextureFormat.ARGB32, false);
+		    _transferBuffer.filterMode = FilterMode.Bilinear;
+		    _transferBuffer.wrapMode = TextureWrapMode.Clamp;
+
 		}
-		return _transferBuffer;
 	}
 
+
+    void Awake()
+    {
+
+        myRenderer = GetComponent<MeshRenderer>();
+
+        initTransferBuffer();
+    }
 // Use this for initialization
 	void Start ()
 	{
 
-
-	    myRenderer = GetComponent<MeshRenderer>();
 
 
 
@@ -66,7 +74,6 @@ public class Geometry : MonoBehaviour {
 
 
 
-		_transferBuffer = getTransferBuffer ();
 
 
 
@@ -112,9 +119,9 @@ public class Geometry : MonoBehaviour {
 	    //TODO currently Idenity if stays this remove this multiplication
 //	    Matrix4x4 lightInverter = transform.worldToLocalMatrix;
 	    myRenderer.material.SetVector("L",Vector3.Normalize(-dirLightTransform.forward));
-	
-		myRenderer.material.SetTexture ("_transferF", _transferBuffer);
-
+//
+//		myRenderer.material.SetTexture ("_transferF", _transferBuffer);
+//
 
 
 
@@ -200,37 +207,37 @@ public class Geometry : MonoBehaviour {
 
 
 
-        int n = sampleSize;
-        Vector3 s1, s2;
-        //fill in normal vectors
-        for (int z = 0; z < d; z++)
-        {
-            for (int y = 0; y < h; y++)
-            {
-                for (int x = 0; x < w; x++)
-                {
-                    var idx = x + y * w + z * w * h;
-                        s1.x = sampleVolume(x - n, y, z);
-                        s2.x = sampleVolume(x + n, y, z);
-                        s1.y = sampleVolume(x, y - n, z);
-                        s2.y = sampleVolume(x, y + n, z);
-                        s1.z = sampleVolume(x, y, z - n);
-                        s2.z = sampleVolume(x, y, z + n);
-                        var vec = Vector3.Normalize(s2 - s1);
-                        volumeNormalColors[idx].r = vec.x;
-                        volumeNormalColors[idx].g = vec.y;
-                        volumeNormalColors[idx].b = vec.z;
-                        //TODO check this with priyanshu
-                        if (float.IsNaN(volumeNormalColors[idx].r))
-                            volumeNormalColors[idx] = new Color(0,0,0,volumeNormalColors[idx].a);
-
-
-
-                }
-            }
-        }
-
-        filterNxNxN(3);
+//        int n = sampleSize;
+//        Vector3 s1, s2;
+//        //fill in normal vectors
+//        for (int z = 0; z < d; z++)
+//        {
+//            for (int y = 0; y < h; y++)
+//            {
+//                for (int x = 0; x < w; x++)
+//                {
+//                    var idx = x + y * w + z * w * h;
+//                        s1.x = sampleVolume(x - n, y, z);
+//                        s2.x = sampleVolume(x + n, y, z);
+//                        s1.y = sampleVolume(x, y - n, z);
+//                        s2.y = sampleVolume(x, y + n, z);
+//                        s1.z = sampleVolume(x, y, z - n);
+//                        s2.z = sampleVolume(x, y, z + n);
+//                        var vec = Vector3.Normalize(s2 - s1);
+//                        volumeNormalColors[idx].r = vec.x;
+//                        volumeNormalColors[idx].g = vec.y;
+//                        volumeNormalColors[idx].b = vec.z;
+//                        //TODO check this with priyanshu
+//                        if (float.IsNaN(volumeNormalColors[idx].r))
+//                            volumeNormalColors[idx] = new Color(0,0,0,volumeNormalColors[idx].a);
+//
+//
+//
+//                }
+//            }
+//        }
+//
+//        filterNxNxN(3);
 
 
 
@@ -329,6 +336,7 @@ public class Geometry : MonoBehaviour {
 
     public void updateTransferBufer(Color [] colors)
     {
+        initTransferBuffer();
         _transferBuffer.SetPixels(colors);
         _transferBuffer.Apply();
         myRenderer.material.SetTexture ("_transferF", _transferBuffer);
