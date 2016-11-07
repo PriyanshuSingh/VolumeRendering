@@ -96,7 +96,6 @@ public class PointBag : MonoBehaviour,IPointerClickHandler
 
 
 
-
     public GameObject pointPrefab;
     public List<GameObject> points;
     public bool pointsListDirty = false;
