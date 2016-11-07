@@ -38,6 +38,7 @@ Shader "VolumeRendering/RayShader"
             uniform sampler3D _Volume;
             uniform sampler2D _BackTex;
 
+
             //Directional Light in world coordinates
             uniform float3 L;
 
@@ -146,6 +147,7 @@ Shader "VolumeRendering/RayShader"
                 float3 back = tex2D(_BackTex, texC).xyz;
 
                 float3 dir = normalize(back - front);
+                float3 Step = dir * StepSize;
                 float4 pos = float4(front, 0);
 
                 float4 dst = float4(0, 0, 0, 0);
@@ -154,7 +156,7 @@ Shader "VolumeRendering/RayShader"
 
                 float value = 0;
 
-            	float3 Step = dir * StepSize;
+            	
 
                 for(int i = 0; i < Iterations; ++i)
                 {

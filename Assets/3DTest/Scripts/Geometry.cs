@@ -21,6 +21,7 @@ public class Geometry : MonoBehaviour {
     [SerializeField] private int volumeDepth = 256;
 
 
+
     private MeshRenderer myRenderer;
     private Texture3D _volumeBuffer;
     private Color[] volumeNormalColors;
@@ -154,12 +155,13 @@ public class Geometry : MonoBehaviour {
         //TODO last arguement mipmapping refer graphics runner
         // sort
         //mrbrain
-        System.Array.Sort(slices, (x, y) => x.name.CompareTo(y.name));
+//        System.Array.Sort(slices, (x, y) => x.name.CompareTo(y.name));
 
         //other volumes
-//        System.Array.Sort(slices, (x, y) => int.Parse(x.name).CompareTo(int.Parse(y.name)));
+        System.Array.Sort(slices, (x, y) => int.Parse(x.name).CompareTo(int.Parse(y.name)));
 
         _volumeBuffer = new Texture3D(volumeWidth, volumeHeight, volumeDepth, TextureFormat.ARGB32, false);
+
 
         var w = _volumeBuffer.width;
         var h = _volumeBuffer.height;
@@ -195,16 +197,14 @@ public class Geometry : MonoBehaviour {
                     if (x<2 || y<2  || x > w - 3 || y > h - 3)
                         volumeNormalColors[idx].a = 0;
                     else
+						volumeNormalColors[idx].a = slices[sliceCount].GetPixelBilinear(x / (float) w, y / (float) h).r;
                         //store the greyscale value in alpha of 3D Texture
-                        volumeNormalColors[idx].a = slices[sliceCount].GetPixelBilinear(x / (float) w, y / (float) h).r;
+                        
 
 
                 }
             }
         }
-
-
-
 
 
 //        int n = sampleSize;
@@ -253,7 +253,7 @@ public class Geometry : MonoBehaviour {
 
         //porbably just add a border of black voxels around
 
-        _volumeBuffer.wrapMode = TextureWrapMode.Clamp;
+		_volumeBuffer.wrapMode = TextureWrapMode.Clamp;
         myRenderer.material.SetTexture("_Volume", _volumeBuffer);
 
 
