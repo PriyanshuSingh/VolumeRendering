@@ -124,7 +124,8 @@ Shader "VolumeRendering/RayShader"
             //use uniforms to define these vars later
 			#define Iterations 512
 			#define StepSize 1.0f/512.0f
-			#define BaseStepSize 0.5
+			#define maxStepSize 1.0f/64.0f
+			#define BaseStepSize 1.0f/512.0f
 
             #define NormalDist  1.0f/256.0f
 
@@ -194,7 +195,6 @@ Shader "VolumeRendering/RayShader"
                     }
 
 
-
 //            		src.a *= .3f; //reduce the alpha to have a more transparent result
             					  //this needs to be adjusted based on the step size
             					  //i.e. the more steps we take, the faster the alpha will grow
@@ -220,6 +220,11 @@ Shader "VolumeRendering/RayShader"
                     }
 
 
+                    //////
+                    float s = dot(normal.xyz, dir);
+  					float stp = lerp(BaseStepSize, maxStepSize, 1.0f - abs(s));
+  					src.a = 1.0f - pow(1.0f - src.a, (BaseStepSize) / (stp)); 
+  					///////
                     float ambientreff = 0.4f;
                     //specular +diffuse shading + ambient lighting
                     //src.rgb *= (specref+diffref+ambientreff);
@@ -233,8 +238,11 @@ Shader "VolumeRendering/RayShader"
             			break;
 
             		//advance the current position
-            		pos.xyz += Step;
 
+                    
+
+//            		pos.xyz += Step;
+					pos.xyz += dir * stp;
             		//break if the position is greater than <1, 1, 1>
             		if(pos.x > 1.0f || pos.y > 1.0f || pos.z > 1.0f)
             			break;
