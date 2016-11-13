@@ -31,7 +31,8 @@ public class Marcher : MonoBehaviour {
 
     public float scaleX = 0.1f;
     public float scaleZ = 0.1f;
-
+    private int holdWidth;
+    private int holdHeight;
 
 
 
@@ -61,16 +62,9 @@ public class Marcher : MonoBehaviour {
 
 	}
 
-    private void OnRenderImage(RenderTexture source, RenderTexture destination)
-    {
 
+    private void OnPreRender(){
 
-
-
-
-
-//        Debug.Log("Hello Render Image");
-//
         if (_cam2 == null)
         {
             var go = new GameObject("Cam2");
@@ -87,10 +81,10 @@ public class Marcher : MonoBehaviour {
 
 
         //check  support for float format
-        Assert.IsTrue(SystemInfo.SupportsRenderTextureFormat(RenderTextureFormat.ARGB32));
+        Assert.IsTrue(SystemInfo.SupportsRenderTextureFormat(RenderTextureFormat.ARGBFloat));
 
         //render depths
-        var backDepth =  RenderTexture.GetTemporary(source.width, source.height, 0, RenderTextureFormat.ARGBFloat);
+        var backDepth =  RenderTexture.GetTemporary(holdWidth, holdHeight, 0, RenderTextureFormat.ARGBFloat);
 
         backDepth.filterMode = FilterMode.Bilinear;
         backDepth.wrapMode = TextureWrapMode.Clamp;
@@ -102,8 +96,7 @@ public class Marcher : MonoBehaviour {
 
 
 
-//Only Back Pass Render
-        //TODO this causes 1 frame lag between the uniforms being updated and used by the volume
+        //Only Back Pass Render
         //render with replaced shaders
         _cam2.targetTexture = backDepth;
         _cam2.RenderWithShader(renderBackDepthShader, "RenderType");
@@ -112,11 +105,17 @@ public class Marcher : MonoBehaviour {
 
         //assign uniform values in the Volume material
         volumeMaterial.SetTexture("_BackTex",backDepth);
+
         RenderTexture.ReleaseTemporary(backDepth);
 
 
 
+    }
+    private void OnRenderImage(RenderTexture source, RenderTexture destination)
+    {
 
+        holdWidth = source.width;
+        holdHeight = source.height;
 
     }
 
