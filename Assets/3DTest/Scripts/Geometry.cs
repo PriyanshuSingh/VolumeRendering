@@ -4,8 +4,6 @@ using UnityEngine.Assertions;
 using System.Collections.Generic;
 
 
-
-
 public class Geometry : MonoBehaviour {
 
 
@@ -28,12 +26,12 @@ public class Geometry : MonoBehaviour {
     private Transform dirLightTransform;
     private Material _mat;
 
-	//TAG: TF BEGIN
 	public Texture2D _transferBuffer ;
+    public UnityEngine.UI.Slider slider;
+    public float maxIterations = 512.0f;
 
-    //TAG: TF END
 
-	private void initTransferBuffer(){
+    private void initTransferBuffer(){
 		if (_transferBuffer == null)
 		{
 
@@ -77,6 +75,10 @@ public class Geometry : MonoBehaviour {
 
 
 
+
+
+
+	    slider.onValueChanged.AddListener((float arg0)  => {myRenderer.material.SetFloat("Iterations", arg0 * maxIterations);});
 
 
 

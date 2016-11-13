@@ -121,15 +121,18 @@ Shader "VolumeRendering/RayShader"
 
 
 
-            //use uniforms to define these vars later
-			#define Iterations 512
-			#define StepSize 1.0f/512.0f
-			#define maxStepSize 1.0f/64.0f
-			#define BaseStepSize 1.0f/512.0f
-            #define NormalDist  1.0f/256.0f
+            uniform float Iterations;
 
+
+            #define NormalDist  1.0f/256.0f
             float4 RayCastSimplePS(VertexShaderOutput input) : COLOR0
             {
+
+
+			    float StepSize =  1.0f/Iterations;
+			    //#define maxStepSize 1.0f/64.0f
+			    //#define BaseStepSize 1.0f/512.0f
+
 
 
 
