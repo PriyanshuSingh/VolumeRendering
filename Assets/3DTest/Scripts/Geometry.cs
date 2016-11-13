@@ -209,6 +209,13 @@ public class Geometry : MonoBehaviour {
         }
 
 
+
+
+
+
+
+
+
 //        int n = sampleSize;
 //        Vector3 s1, s2;
 //        //fill in normal vectors

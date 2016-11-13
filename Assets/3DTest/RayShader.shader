@@ -28,7 +28,9 @@ Shader "VolumeRendering/RayShader"
             #pragma vertex  VS
             #pragma fragment RayCastSimplePS
 
-
+            //functions
+            float4 composite(float4 dst,float4 src);
+            float getPhongFactor(float4 normal,float3 wPos);
 
 
 
@@ -104,8 +106,6 @@ Shader "VolumeRendering/RayShader"
 
 
 
-      
-
             VertexShaderOutput VS(VertexShaderInput input)
             {
                 VertexShaderOutput output;
@@ -126,7 +126,6 @@ Shader "VolumeRendering/RayShader"
 			#define StepSize 1.0f/512.0f
 			#define maxStepSize 1.0f/64.0f
 			#define BaseStepSize 1.0f/512.0f
-
             #define NormalDist  1.0f/256.0f
 
             float4 RayCastSimplePS(VertexShaderOutput input) : COLOR0
@@ -165,13 +164,11 @@ Shader "VolumeRendering/RayShader"
             		//get normal
             		normal = tex3Dlod(_Volume, pos);
 
-                    //copy greyscale value to src
+                    //copy iso value to src
             		src = (float4)normal.a;
             		normal.a = 0;
-            		//TAG: TF BEGIN
-            		src = tex2Dlod(_transferF, float4(src.r, 0.5f, 0, 0));
-            		//TAG: TF END
 
+            		src = tex2Dlod(_transferF, float4(src.r, 0.5f, 0, 0));
 
 
 
@@ -188,50 +185,34 @@ Shader "VolumeRendering/RayShader"
                     normal.y = up-down;
                     normal.z = fr-ba;
                     if(normal.x == 0.0f && normal.y == 0.0f && normal.z == 0.0f){
-                        normal = (float4)0;
+                       normal = (float4)0;
                     }
                     else{
-                        normal = normalize(normal);
+                       normal = normalize(normal);
                     }
 
 
-//            		src.a *= .3f; //reduce the alpha to have a more transparent result
+
+
+            		src.a *= .3f; //reduce the alpha to have a more transparent result
             					  //this needs to be adjusted based on the step size
             					  //i.e. the more steps we take, the faster the alpha will grow
 
 
 
-                    //Front to back blending
-                    //dst.rgb = dst.rgb + (1 - dst.a) * src.a * src.rgb;
-                    //dst.a   = dst.a   + (1 - dst.a) * src.a;
 
 
 
 
-                    float3 lightDir = L;
-                    float3 reflecVec = normalize(2*normal*dot(normal,lightDir)-lightDir);
-                    float3 viewDir = normalize(_WorldSpaceCameraPos-input.wPos);
 
-                    float diffref = max(0, dot(normal,lightDir));
-                    float specref = 0;
-                    //check if light is on right side
-                    if(diffref > 0){
-                        specref = pow(max(dot(viewDir,reflecVec),0),1);
-                    }
+                    src.rgb*=getPhongFactor(normal,input.wPos);
 
 
-                    //////
-                    float s = dot(normal.xyz, dir);
-  					float stp = lerp(BaseStepSize, maxStepSize, 1.0f - abs(s));
-  					src.a = 1.0f - pow(1.0f - src.a, (BaseStepSize) / (stp)); 
-  					///////
-                    float ambientreff = 0.4f;
-                    //specular +diffuse shading + ambient lighting
-                    //src.rgb *= (specref+diffref+ambientreff);
-                    src.rgb *=specref+ambientreff;
+
                     src.rgb *= src.a;
 
-            		dst = (1.0f - dst.a)*src + dst;
+                    dst = composite(dst,src);
+            		//dst = (1.0f - dst.a)*src + dst;
 
             		//break from the loop when alpha gets high enough
             		if(dst.a >= .95f)
@@ -241,8 +222,8 @@ Shader "VolumeRendering/RayShader"
 
                     
 
-//            		pos.xyz += Step;
-					pos.xyz += dir * stp;
+            		pos.xyz += Step;
+//					pos.xyz += dir * stp;
             		//break if the position is greater than <1, 1, 1>
             		if(pos.x > 1.0f || pos.y > 1.0f || pos.z > 1.0f)
             			break;
@@ -250,6 +231,35 @@ Shader "VolumeRendering/RayShader"
 
                 return dst;
             }
+            float4 composite(float4 dst,float4 src){
+                return (1.0f - dst.a)*src + dst;
+                //Front to back blending
+                //dst.rgb = dst.rgb + (1 - dst.a) * src.a * src.rgb;
+                //dst.a   = dst.a   + (1 - dst.a) * src.a;
+
+
+            }
+            float getPhongFactor(float4 normal,float3 wPos){
+
+
+
+            	float3 lightDir = L;
+            	float3 reflecVec = normalize(2*normal*dot(normal,lightDir)-lightDir);
+            	float3 viewDir = normalize(_WorldSpaceCameraPos-wPos);
+
+            	float diffref = max(0, dot(normal,lightDir));
+            	float specref = 0;
+            	//check if light is on right side
+            	if(diffref > 0){
+            	   specref = pow(max(dot(viewDir,reflecVec),0),1);
+            	}
+
+            	float ambientreff = 0.4f;
+                return specref+diffref+ambientreff;
+
+
+            }
+
             ENDCG
         }
     }
