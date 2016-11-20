@@ -10,8 +10,13 @@ public class QuadScript : MonoBehaviour {
     private int index;
     void Awake()
     {
-        _mat = GetComponent<MeshRenderer>().material;
-        index = 0;
+//        _mat = GetComponent<MeshRenderer>().material;
+//        index = 0;
+//        var verts = GetComponent<MeshFilter>().mesh.vertices;
+//        for (int i = 0; i < verts.Length; i++)
+//        {
+//            Debug.Log(verts[i]);
+//        }
 
 
     }
@@ -24,8 +29,9 @@ public class QuadScript : MonoBehaviour {
 	void Update () {
 
 
-	    _mat.SetInt("index3D",index);
-	    index = (index + 1) % 256;
+
+	       transform.Rotate(Vector3.up,60*Time.deltaTime);
+
 
 	}
 }

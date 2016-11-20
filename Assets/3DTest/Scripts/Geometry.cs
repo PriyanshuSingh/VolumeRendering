@@ -189,26 +189,37 @@ public class Geometry : MonoBehaviour {
             //TODO interpolate between textures based on this factor
             sliceCountFloat += countOffset;
             sliceCount = Mathf.FloorToInt(sliceCountFloat);
-
             for (int y = 0; y < h; y++)
             {
                 for (int x = 0; x < w; x++)
                 {
-                        var idx = x + y * w + z * w * h;
-
-
+                    var idx = x + y * w + z * w * h;
 
                     if (x<2 || y<2  || x > w - 3 || y > h - 3)
                         volumeNormalColors[idx].a = 0;
                     else
 						volumeNormalColors[idx].a = slices[sliceCount].GetPixelBilinear(x / (float) w, y / (float) h).r;
                         //store the greyscale value in alpha of 3D Texture
-                        
 
 
                 }
             }
         }
+
+
+        for (int z = 0; z < d; z++){
+
+            //setup cam and render texture(clamp it and filter mode bilinear)
+            //setup depth uniform and access 3d texture in this shader
+            //render into texture
+            //copy to texture2d
+            //copy to 3d texture from texture2d
+
+        }
+
+    //restore render texture and setup resume bool here
+
+
 
 
 
