@@ -885,6 +885,7 @@ MonoBehaviour:
   volumeWidth: 256
   volumeHeight: 256
   volumeDepth: 256
+  _makeMat: {fileID: 2100000, guid: 208fb09877495e94381219750cfed9a2, type: 2}
   _transferBuffer: {fileID: 0}
   slider: {fileID: 1434032019}
   maxIterations: 512
@@ -1112,7 +1113,7 @@ RectTransform:
   m_RootOrder: 1
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 432, y: -374}
+  m_AnchoredPosition: {x: 267.8, y: -189.7}
   m_SizeDelta: {x: 160, y: 20}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1434032019

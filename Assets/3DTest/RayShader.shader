@@ -174,8 +174,12 @@ Shader "VolumeRendering/RayShader"
             		src = tex2Dlod(_transferF, float4(src.r, 0.5f, 0, 0));
 
 
+                    //float3 norm = normal.xyz;
+                    //if(length(norm) == 1 || length(norm)== 0)
+                    //    return float4(0,0,1,1);
 
 
+                    /*
                     float left = tex3Dlod(_Volume,pos+float4(-NormalDist,0,0,0)).a;
                     float right = tex3Dlod(_Volume,pos+float4(NormalDist,0,0,0)).a;
 
@@ -194,7 +198,7 @@ Shader "VolumeRendering/RayShader"
                        normal = normalize(normal);
                     }
 
-
+                    */
 
 
             		//src.a *= .3f; //reduce the alpha to have a more transparent result
@@ -226,7 +230,6 @@ Shader "VolumeRendering/RayShader"
                     
 
             		pos.xyz += Step;
-//					pos.xyz += dir * stp;
             		//break if the position is greater than <1, 1, 1>
             		if(pos.x > 1.0f || pos.y > 1.0f || pos.z > 1.0f)
             			break;
