@@ -174,31 +174,34 @@ Shader "VolumeRendering/RayShader"
             		src = tex2Dlod(_transferF, float4(src.r, 0.5f, 0, 0));
 
 
-                    //float3 norm = normal.xyz;
-                    //if(length(norm) == 1 || length(norm)== 0)
-                    //    return float4(0,0,1,1);
 
 
-                    /*
+
+                    //On The Fly Gradients Computation
+
+                    float4 computed = float4(0,0,0,0);
                     float left = tex3Dlod(_Volume,pos+float4(-NormalDist,0,0,0)).a;
                     float right = tex3Dlod(_Volume,pos+float4(NormalDist,0,0,0)).a;
 
-                    float up = tex3Dlod(_Volume,pos+float4(0,NormalDist,0,0)).a;
+                    float up =  tex3Dlod(_Volume,pos+float4(0,NormalDist,0,0)).a;
                     float down = tex3Dlod(_Volume,pos+float4(0,-NormalDist,0,0)).a;
 
                     float fr = tex3Dlod(_Volume,pos+float4(0,0,NormalDist,0)).a;
                     float ba = tex3Dlod(_Volume,pos+float4(0,0,-NormalDist,0)).a;
-                    normal.x = right-left;
-                    normal.y = up-down;
-                    normal.z = fr-ba;
-                    if(normal.x == 0.0f && normal.y == 0.0f && normal.z == 0.0f){
-                       normal = (float4)0;
+                    computed.x = right-left;
+                    computed.y = up-down;
+                    computed.z = fr-ba;
+                    if(computed.x == 0.0f && computed.y == 0.0f && computed.z == 0.0f){
+                       computed = (float4)0;
                     }
                     else{
-                       normal = normalize(normal);
+                       computed = normalize(computed);
                     }
 
-                    */
+
+
+
+
 
 
             		//src.a *= .3f; //reduce the alpha to have a more transparent result
@@ -206,17 +209,24 @@ Shader "VolumeRendering/RayShader"
             					  //i.e. the more steps we take, the faster the alpha will grow
 
 
-
+                    //convert normals back to -1 to 1 range
             		normal *= 2.0f;normal -= 1.0f; normal.a = 0;
+
                     if(normal.x == 0.0f && normal.y == 0.0f && normal.z == 0.0f){
-                       normal = (float4)1/sqrt(3);
-                       normal.a = 0;
+                       normal = (float4)0;
+
                     }
                     else{
                 
                        normal = normalize(normal);
                     }
 
+
+
+
+
+                    if(length(computed-normal) > 1)
+                        return float4(1,0,0,1);
 
 
                     src.rgb*=getPhongFactor(normal,input.wPos);

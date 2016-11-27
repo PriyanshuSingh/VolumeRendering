@@ -30,7 +30,7 @@ public class Marcher : MonoBehaviour {
 
 
     public float scaleX = 0.1f;
-    public float scaleZ = 0.1f;
+    public float scaleY = 0.1f;
     private int holdWidth;
     private int holdHeight;
 
@@ -44,20 +44,29 @@ public class Marcher : MonoBehaviour {
 
 
         var cube = GameObject.FindGameObjectWithTag("ProxyCube");
-//        if (cube != null)
-//        {
-//            Debug.Log("found cube");
-//        }
+
         Assert.IsTrue(cube != null);
         volumeMaterial = cube.GetComponent<MeshRenderer>().material;
+
 
     }
 
 
 	private void Update(){
+
+
+	    //TODO reset camera back to volume
+
+	    if (Input.GetKeyDown(KeyCode.R))
+	    {
+
+
+	    }
+
+
 	    float xAxisValue = Input.GetAxis("Horizontal")*scaleX;
-	    float zAxisValue = Input.GetAxis("Vertical")*scaleZ;
-        _origCam.transform.Translate(new Vector3(xAxisValue, 0.0f, zAxisValue));
+	    float yAxisValue = Input.GetAxis("Vertical")*scaleY;
+        _origCam.transform.Translate(new Vector3(xAxisValue,yAxisValue ,0.0f ));
 
 
 	}

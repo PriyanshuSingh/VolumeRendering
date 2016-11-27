@@ -271,7 +271,7 @@ public class Geometry : MonoBehaviour {
             colors.AddRange(quadImage.GetPixels());
 
 
-
+//for testing normals we can set output to image
 //            byte[] bytes = quadImage.EncodeToPNG();
 //            System.IO.File.WriteAllBytes(Application.persistentDataPath + "/camera_img-"+i+".png", bytes);
 
