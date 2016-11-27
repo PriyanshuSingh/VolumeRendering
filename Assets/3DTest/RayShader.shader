@@ -207,8 +207,15 @@ Shader "VolumeRendering/RayShader"
 
 
 
-
-
+            		normal *= 2.0f;normal -= 1.0f; normal.a = 0;
+                    if(normal.x == 0.0f && normal.y == 0.0f && normal.z == 0.0f){
+                       normal = (float4)1/sqrt(3);
+                       normal.a = 0;
+                    }
+                    else{
+                
+                       normal = normalize(normal);
+                    }
 
 
 

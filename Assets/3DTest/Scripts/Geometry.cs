@@ -15,7 +15,7 @@ public class Geometry : MonoBehaviour {
 
 
     [Header("Volume texture size. These must be a power of 2")]
-    [SerializeField] private int volumeWidth = 256;
+    [SerializeField] private int volumeWidth =256;
     [SerializeField] private int volumeHeight = 256;
     [SerializeField] private int volumeDepth = 256;
 
@@ -159,10 +159,10 @@ public class Geometry : MonoBehaviour {
 
 
 
-
 //        skip some slices if we can't fit it all in
-        var countOffset = (slices.Length - 1) / (float) d;
 
+        var countOffset = (slices.Length - 1) / (float) d;
+		countOffset = 1;
 //        volumeNormalColors = new Color[w * h * d];
 
 
