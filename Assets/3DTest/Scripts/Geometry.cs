@@ -40,15 +40,14 @@ public class Geometry : MonoBehaviour {
         iterationSlider.onValueChanged.AddListener((float arg0)  => {_rayMat.SetFloat("iterations", arg0 * maxIterations);});
         iterationSlider.normalizedValue = 0.5f;
 
+
     }
     public void setupDefaultUniforms()
     {
-        _rayMat.SetFloat("alphaThreshold",95f);
+        _rayMat.SetFloat("alphaThreshold",0.95f);
         _rayMat.SetFloat("iterations",iterationSlider.normalizedValue*maxIterations);
         _rayMat.SetFloat("baseIterations",512);
         _rayMat.SetInt("compositingType",0);
-
-
 
 
 

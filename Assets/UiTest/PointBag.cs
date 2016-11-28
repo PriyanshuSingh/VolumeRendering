@@ -209,6 +209,11 @@ public class PointBag : MonoBehaviour,IPointerClickHandler
 			data [i].g = Mathf.Clamp(color.y, 0, 1.0f);
 			data [i].b = Mathf.Clamp(color.z, 0, 1.0f);
 			data [i].a = Mathf.Clamp(color.w, 0, 1.0f);
+
+			data [i].r *= data [i].a;
+			data [i].g *= data [i].a;
+			data [i].b *= data [i].a;
+
 			linePoints.Add (new Vector2 ((float)i / 256.0f * myRect.sizeDelta.x, data [i].a * myRect.sizeDelta.y));
 //			Debug.Log ("data at " + i + " is " + data [i]);
 		}

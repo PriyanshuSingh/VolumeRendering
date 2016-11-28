@@ -258,7 +258,7 @@ Shader "VolumeRendering/RayShader"
 
                      src.rgb*=getPhongFactor(normal,wPos);
                      //alpha premultipied colors
-                     src.rgb *= src.a;
+//                     src.rgb *= src.a;
 
 
 
