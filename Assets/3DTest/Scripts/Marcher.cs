@@ -62,11 +62,14 @@ public class Marcher : MonoBehaviour {
 
 
 	    }
+	    float scrollValue = Input.GetAxis("Mouse ScrollWheel");
+
 
 
 	    float xAxisValue = Input.GetAxis("Horizontal")*scaleX;
 	    float yAxisValue = Input.GetAxis("Vertical")*scaleY;
-        _origCam.transform.Translate(new Vector3(xAxisValue,yAxisValue ,0.0f ));
+        _origCam.transform.Translate(new Vector3(xAxisValue,yAxisValue ,scrollValue));
+
 
 
 	}

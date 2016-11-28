@@ -23,7 +23,6 @@ public class Geometry : MonoBehaviour {
 
     private MeshRenderer myRenderer;
     private Texture3D _volumeBuffer;
-//    private Color[] volumeNormalColors;
     private Transform dirLightTransform;
     private Material _rayMat;
     public Material _makeMat;
@@ -33,16 +32,26 @@ public class Geometry : MonoBehaviour {
     public float maxIterations = 512.0f;
 
 
-    private void initTransferBuffer(){
-        if (_transferBuffer == null)
-        {
 
-            _transferBuffer = new Texture2D (256, 1, TextureFormat.ARGB32, false);
-            _transferBuffer.filterMode = FilterMode.Bilinear;
-            _transferBuffer.wrapMode = TextureWrapMode.Clamp;
 
-        }
+
+    public void SetupUiStuff()
+    {
+        slider.onValueChanged.AddListener((float arg0)  => {_rayMat.SetFloat("iterations", arg0 * maxIterations);});
+        slider.normalizedValue = 0.5f;
+
     }
+    public void setupDefaultUniforms()
+    {
+        _rayMat.SetFloat("alphaThreshold",0.95f);
+        _rayMat.SetFloat("iterations",slider.normalizedValue*maxIterations);
+
+    }
+
+
+
+
+
 
 
     void Awake()
@@ -68,27 +77,21 @@ public class Geometry : MonoBehaviour {
 
             Debug.Log("failed to load textures");
         }
-        else
-        {
-//	        Debug.Log("size of slices " + slices.Length);
-        }
 
 
 
 
 
 
-
-
-
-	    slider.onValueChanged.AddListener((float arg0)  => {_rayMat.SetFloat("Iterations", arg0 * maxIterations);});
-//	    _rayMat.SetFloat("Iterations",256);
 
 
 
         //TODO merge volume and normal texture
         //volume is greyscale thus can be fitted in alpha component
-        GenerateVolumeAndNormal(1);
+        SetupUiStuff();
+        GenerateVolumeAndNormal();
+        setupDefaultUniforms();
+
 
 
 
@@ -107,12 +110,8 @@ public class Geometry : MonoBehaviour {
 
 
 
-        //TODO currently Idenity if stays this remove this multiplication
-//	    Matrix4x4 lightInverter = transform.worldToLocalMatrix;
         _rayMat.SetVector("L",Vector3.Normalize(-dirLightTransform.forward));
-//
-//		myRenderer.material.SetTexture ("_transferF", _transferBuffer);
-//
+
 
 
 
@@ -137,7 +136,7 @@ public class Geometry : MonoBehaviour {
     }
 
 
-    private void GenerateVolumeAndNormal(int sampleSize)
+    private void GenerateVolumeAndNormal()
     {
 
 
@@ -147,6 +146,7 @@ public class Geometry : MonoBehaviour {
         //mrbrain
 //        System.Array.Sort(slices, (x, y) => x.name.CompareTo(y.name));
 
+        //TODO parse and obtain ints only
         //other volumes
         System.Array.Sort(slices, (x, y) => int.Parse(x.name).CompareTo(int.Parse(y.name)));
 
@@ -163,14 +163,13 @@ public class Geometry : MonoBehaviour {
 
         var countOffset = (slices.Length - 1) / (float) d;
 		countOffset = 1;
-//        volumeNormalColors = new Color[w * h * d];
 
 
 
         List<Color> colors = new List<Color>(w*h*d);
 
 
-        var sliceCount = 0;
+        int sliceCount;
         var sliceCountFloat = 0f;
 
 
@@ -297,81 +296,27 @@ public class Geometry : MonoBehaviour {
 
 
 
+
+
         //set to null and pray to GC
         slices = null;
 
     }
 
-//    private float sampleVolume(int x, int y, int z)
-//    {
-//        x = Mathf.Clamp(x, 0, _volumeBuffer.width - 1);
-//        y = Mathf.Clamp(y, 0, _volumeBuffer.height - 1);
-//        z = Mathf.Clamp(z, 0, _volumeBuffer.depth - 1);
-//        //accessing r can access any one here for greyscale value
-//        return volumeNormalColors[x + y * _volumeBuffer.height + z *_volumeBuffer.width * _volumeBuffer.height].a;
-//    }
-//
-//    private void filterNxNxN(int n)
-//    {
-//        int index = 0;
-//        for (int z = 0; z < _volumeBuffer.depth; z++)
-//        {
-//            for (int y = 0; y < _volumeBuffer.height; y++)
-//            {
-//                for (int x = 0; x < _volumeBuffer.width; x++,index++)
-//                {
-//                    var sampleResult = sampleNxNxN(x, y, z, n);
-//                    volumeNormalColors[index].r = sampleResult.x;
-//                    volumeNormalColors[index].g = sampleResult.y;
-//                    volumeNormalColors[index].b = sampleResult.z;
-//
-//                }
-//            }
-//        }
-//    }
-//    private bool isInBounds(int x, int y, int z)
-//    {
-//        return  x >= 0 && x < _volumeBuffer.width && y >= 0 && y < _volumeBuffer.height &&  z >= 0 && z < _volumeBuffer.depth;
-//    }
-//
-//    private Vector3 sampleNxNxN(int x, int y, int z, int n)
-//    {
-//        n = (n - 1) / 2;
-//
-//        Vector3 average = Vector3.zero;
-//        int num = 0;
-//
-//        for (int k = z - n; k <= z + n; k++)
-//        {
-//            for (int j = y - n; j <= y + n; j++)
-//            {
-//                for (int i = x - n; i <= x + n; i++)
-//                {
-//                    if (isInBounds(i, j, k))
-//                    {
-//                        average += sampleGradients(i, j, k);
-//                        num++;
-//                    }
-//                }
-//            }
-//        }
-//
-//        average /= (float)num;
-//        if (average.x != 0.0f && average.y != 0.0f && average.z != 0.0f)
-//            average.Normalize();
-//
-//        return average;
-//    }
-//
-//    private Vector3 sampleGradients(int x, int y, int z)
-//    {
-//        var v = volumeNormalColors[x + y * _volumeBuffer.width + z * _volumeBuffer.height * _volumeBuffer.width];
-//        return new Vector3(v.r,v.g,v.b);
-//    }
 
 
 
 
+    private void initTransferBuffer(){
+        if (_transferBuffer == null)
+        {
+
+            _transferBuffer = new Texture2D (256, 1, TextureFormat.ARGB32, false);
+            _transferBuffer.filterMode = FilterMode.Bilinear;
+            _transferBuffer.wrapMode = TextureWrapMode.Clamp;
+
+        }
+    }
     public void updateTransferBufer(Color [] colors)
     {
         initTransferBuffer();
@@ -379,5 +324,7 @@ public class Geometry : MonoBehaviour {
         _transferBuffer.Apply();
         _rayMat.SetTexture ("_transferF", _transferBuffer);
     }
+
+
 
 }

@@ -53,16 +53,8 @@
                     normal.x = (right-left+1.0f)/2.0f;
                     normal.y = (up-down+1.0f)/2.0f;
                     normal.z = (fr-ba+1.0f)/2.0f;
-//                    if(normal.x == 0.0f && normal.y == 0.0f && normal.z == 0.0f){
-//                       normal = (float4)0;
-//                    }
-//                    else{
-//                       normal = normalize(normal);
-//                    }
-
-            //float3 s = ;
-            normal.a =  tex3D(_Volume,pos).a;
-            return normal;
+                    normal.a =  tex3D(_Volume,pos).a;
+                    return normal;
 		}
 
 	ENDCG

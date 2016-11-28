@@ -19,14 +19,10 @@ Shader "VolumeRendering/RayShader"
         {
             CGPROGRAM
 
-            	#include "UnityCG.cginc"
-//            	#pragma target 3.0
-//            	#pragma profileoption MaxLocalParams=1024
-//            	#pragma profileoption NumInstructionSlots=4096
-//           	#pragma profileoption NumMathInstructionSlots=4096
+            #include "UnityCG.cginc"
 
             #pragma vertex  VS
-            #pragma fragment RayCastSimplePS
+            #pragma fragment RayCastPS
 
             //functions
             float4 composite(float4 dst,float4 src);
@@ -40,52 +36,8 @@ Shader "VolumeRendering/RayShader"
             uniform sampler3D _Volume;
             uniform sampler2D _BackTex;
 
-
             //Directional Light in world coordinates
             uniform float3 L;
-
-
-
-//TODO add support for these
-            sampler2D sampler_FrontTex = sampler_state
-            {
-                Texture = <_FrontTex>;
-                MinFilter = LINEAR;
-                MagFilter = LINEAR;
-                MipFilter = LINEAR;
-
-                AddressU = Border;				// border sampling in U
-                AddressV = Border;				// border sampling in V
-                BorderColor = float4(0,0,0,0);	// outside of border should be black
-            };
-
-            sampler2D sampler_BackTex = sampler_state
-            {
-                Texture = <_BackTex>;
-                MinFilter = LINEAR;
-                MagFilter = LINEAR;
-                MipFilter = LINEAR;
-
-                AddressU = Border;				// border sampling in U
-                AddressV = Border;				// border sampling in V
-                BorderColor = float4(0,0,0,0);	// outside of border should be black
-            };
-
-            sampler3D  sampler_Volume = sampler_state
-            {
-                Texture = <_Volume>;
-                MinFilter = LINEAR;
-                MagFilter = LINEAR;
-                MipFilter = LINEAR;
-
-                AddressU = Border;				// border sampling in U
-                AddressV = Border;				// border sampling in V
-                AddressW = Border;
-                BorderColor = float4(0,0,0,0);	// outside of border should be black
-            };
-
-
-
             uniform sampler2D _transferF;
 
             struct VertexShaderInput
@@ -121,15 +73,17 @@ Shader "VolumeRendering/RayShader"
 
 
 
-            uniform float Iterations;
+            uniform float iterations;
+            uniform float alphaThreshold;
+
 
 
             #define NormalDist  1.0f/256.0f
-            float4 RayCastSimplePS(VertexShaderOutput input) : COLOR0
+            float4 RayCastPS(VertexShaderOutput input) : COLOR0
             {
 
 
-			    float StepSize =  1.0f/Iterations;
+			    float StepSize =  1.0f/iterations;
 			    //#define maxStepSize 1.0f/64.0f
 			    //#define BaseStepSize 1.0f/512.0f
 
@@ -161,7 +115,7 @@ Shader "VolumeRendering/RayShader"
 
             	
 
-                for(int i = 0; i < Iterations; ++i)
+                for(int i = 0; i < iterations; ++i)
                 {
             		pos.w = 0;
             		//get normal
@@ -225,27 +179,21 @@ Shader "VolumeRendering/RayShader"
 
 
 
-                    if(length(computed-normal) > 1)
-                        return float4(1,0,0,1);
+                    //if(length(computed-normal) > 1)
+                    //   return float4(1,0,0,1);
 
 
                     src.rgb*=getPhongFactor(normal,input.wPos);
-
-
-
                     src.rgb *= src.a;
 
                     dst = composite(dst,src);
             		//dst = (1.0f - dst.a)*src + dst;
 
-            		//break from the loop when alpha gets high enough
-            		if(dst.a >= .95f)
-            			break;
+            		//break from the loop when alpha gets high enough(early ray termination)
+            		//if(dst.a >= alphaThreshold)
+            		//	break;
 
             		//advance the current position
-
-                    
-
             		pos.xyz += Step;
             		//break if the position is greater than <1, 1, 1>
             		if(pos.x > 1.0f || pos.y > 1.0f || pos.z > 1.0f)
