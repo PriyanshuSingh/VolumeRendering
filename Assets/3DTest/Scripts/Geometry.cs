@@ -28,7 +28,7 @@ public class Geometry : MonoBehaviour {
     public Material _makeMat;
 
     public Texture2D _transferBuffer ;
-    public UnityEngine.UI.Slider slider;
+    public UnityEngine.UI.Slider iterationSlider;
     public float maxIterations = 512.0f;
 
 
@@ -37,14 +37,20 @@ public class Geometry : MonoBehaviour {
 
     public void SetupUiStuff()
     {
-        slider.onValueChanged.AddListener((float arg0)  => {_rayMat.SetFloat("iterations", arg0 * maxIterations);});
-        slider.normalizedValue = 0.5f;
+        iterationSlider.onValueChanged.AddListener((float arg0)  => {_rayMat.SetFloat("iterations", arg0 * maxIterations);});
+        iterationSlider.normalizedValue = 0.5f;
 
     }
     public void setupDefaultUniforms()
     {
-        _rayMat.SetFloat("alphaThreshold",0.95f);
-        _rayMat.SetFloat("iterations",slider.normalizedValue*maxIterations);
+        _rayMat.SetFloat("alphaThreshold",95f);
+        _rayMat.SetFloat("iterations",iterationSlider.normalizedValue*maxIterations);
+        _rayMat.SetFloat("baseIterations",512);
+        _rayMat.SetInt("compositingType",0);
+
+
+
+
 
     }
 
