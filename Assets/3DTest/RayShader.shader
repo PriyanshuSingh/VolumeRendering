@@ -195,7 +195,7 @@ Shader "VolumeRendering/RayShader"
 
 
                     //alpha premultipied colors
-                    if(enableAssociative == 1)src.rgb *= src.a;
+                    if(enableAssociative == 0)src.rgb *= src.a;
 
 
 
@@ -269,7 +269,7 @@ Shader "VolumeRendering/RayShader"
                         src.rgb*=getPhongFactor(normal,wPos);
 
                      //alpha premultipied colors
-                     if(enableAssociative == 1)src.rgb *= src.a;
+                     if(enableAssociative == 0)src.rgb *= src.a;
 
 
 

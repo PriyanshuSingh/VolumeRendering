@@ -134,6 +134,7 @@ public class PointBag : MonoBehaviour,IPointerClickHandler
             new ControlPoint(0.9f, 82),
             new ControlPoint(1.0f, 256)
         };
+		geoScript = GameObject.FindGameObjectWithTag("ProxyCube").GetComponent<Geometry>();
 
 
     }
@@ -146,7 +147,6 @@ public class PointBag : MonoBehaviour,IPointerClickHandler
 
 
 
-	    geoScript = GameObject.FindGameObjectWithTag("ProxyCube").GetComponent<Geometry>();
 
 
 //		for (int i = 1; i < mAlphaKnots.Count-1; i++) {
