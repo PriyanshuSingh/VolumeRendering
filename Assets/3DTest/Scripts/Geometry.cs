@@ -1,6 +1,8 @@
 ﻿using UnityEngine;
 using System.Collections;
 using UnityEngine.Assertions;
+using UnityEngine.UI;
+
 using System.Collections.Generic;
 using System.Linq;
 
@@ -348,6 +350,8 @@ public class Geometry : MonoBehaviour {
         _transferBuffer.SetPixels(colors);
         _transferBuffer.Apply();
         _rayMat.SetTexture ("_transferF", _transferBuffer);
+		GameObject.FindGameObjectWithTag ("TF").GetComponent<RawImage> ().texture = _transferBuffer;
+
     }
 
 
