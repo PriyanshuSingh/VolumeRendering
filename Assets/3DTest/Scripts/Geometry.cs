@@ -29,8 +29,13 @@ public class Geometry : MonoBehaviour {
 
     public Texture2D _transferBuffer ;
     public UnityEngine.UI.Slider iterationSlider;
-    public float maxIterations = 512.0f;
-
+	public UnityEngine.UI.Slider baseIterationSlider;
+	public UnityEngine.UI.Slider alphaThresholdSlider;
+	public UnityEngine.UI.Dropdown compostingDropDown;
+	public UnityEngine.UI.Toggle associativeColor;
+	public UnityEngine.UI.Toggle phongToggle;
+    public float maxIterations = 2048.0f;
+	public float maxBaseIterations = 1024.0f;
 
 
 
@@ -40,15 +45,28 @@ public class Geometry : MonoBehaviour {
         iterationSlider.onValueChanged.AddListener((float arg0)  => {_rayMat.SetFloat("iterations", arg0 * maxIterations);});
         iterationSlider.normalizedValue = 0.5f;
 
+		baseIterationSlider.onValueChanged.AddListener((float arg0) => {_rayMat.SetFloat("baseIterations", arg0 * maxBaseIterations);});
+		baseIterationSlider.normalizedValue = 0.5f;
 
-    }
+		alphaThresholdSlider.onValueChanged.AddListener((float arg0) => {_rayMat.SetFloat("alphaThreshold", arg0);});
+		alphaThresholdSlider.normalizedValue = 0.95f;
+
+		compostingDropDown.onValueChanged.AddListener((int arg0) => {_rayMat.SetInt("compositingType", arg0);});
+		compostingDropDown.value = 0;
+//		PointBag PBscript = GameObject.FindGameObjectWithTag ("PBG").GetComponent<PointBag> ();
+		associativeColor.onValueChanged.AddListener ((bool arg0) => {PointBag PBscript = GameObject.FindGameObjectWithTag ("PBG").GetComponent<PointBag> ();PBscript.assoc = arg0; PBscript.computeTransferFunction();}); 
+   		
+		phongToggle.onValueChanged.AddListener ((bool arg0) => {int s = 0; if(arg0) s = 1; _rayMat.SetInt("enablePhong",s);});
+	
+	}
+
     public void setupDefaultUniforms()
     {
-        _rayMat.SetFloat("alphaThreshold",0.95f);
+		_rayMat.SetFloat("alphaThreshold",alphaThresholdSlider.normalizedValue);
         _rayMat.SetFloat("iterations",iterationSlider.normalizedValue*maxIterations);
-        _rayMat.SetFloat("baseIterations",512);
-        _rayMat.SetInt("compositingType",0);
-
+		_rayMat.SetFloat("baseIterations",baseIterationSlider.normalizedValue*maxIterations);
+		_rayMat.SetInt("compositingType",compostingDropDown.value);
+		_rayMat.SetInt("enablePhong",1);
 
 
     }

@@ -9,7 +9,6 @@ Shader "VolumeRendering/RayShader"
 
 
     Subshader {
-        //TODO see these parameters
        // ZTest Always Cull Off ZWrite Off
         Fog { Mode off }
 
@@ -29,6 +28,7 @@ Shader "VolumeRendering/RayShader"
             float getPhongFactor(float4 normal,float3 wPos);
             float4 composeFrontToBack(float3 front,float3 back,float3 wPos);
             float4 composeBackToFront(float3 front,float3 back,float3 wPos);
+            float4 maxIntensityProjection(float3 front,float3 back);
 
 
 
@@ -83,6 +83,8 @@ Shader "VolumeRendering/RayShader"
             uniform float alphaThreshold;
             //0 for front to back,1 for back to front
             uniform int compositingType;
+            uniform int enablePhong;
+            uniform float ambientFactor;
 
 
 
@@ -107,8 +109,11 @@ Shader "VolumeRendering/RayShader"
                 if(compositingType == 0){
                     return composeFrontToBack(front,back,input.wPos);
                 }
-                else{
+                else if(compositingType == 1){
                     return composeBackToFront(front,back,input.wPos);
+                }
+                else{
+                    return maxIntensityProjection(front,back);
                 }
 
 
@@ -183,8 +188,11 @@ Shader "VolumeRendering/RayShader"
 
 
 
+                    if(enablePhong == 1)
+                        src.rgb*=getPhongFactor(normal,wPos);
 
-                    src.rgb*=getPhongFactor(normal,wPos);
+
+
                     //alpha premultipied colors
                     src.rgb *= src.a;
 
@@ -256,9 +264,11 @@ Shader "VolumeRendering/RayShader"
 
 
 
-                     src.rgb*=getPhongFactor(normal,wPos);
+                    if(enablePhong == 1)
+                        src.rgb*=getPhongFactor(normal,wPos);
+
                      //alpha premultipied colors
-//                     src.rgb *= src.a;
+                     src.rgb *= src.a;
 
 
 
@@ -270,13 +280,45 @@ Shader "VolumeRendering/RayShader"
 
                      //break if the position is out of volume
                      if(pos.x > 1.0f || pos.y > 1.0f || pos.z > 1.0f || pos.x < 0.0f || pos.y < 0.0f || pos.z < 0.0f)
-                         break;;
+                         break;
                  }
 
                  return dst;
 
 
 
+
+            }
+
+
+
+            float4 maxIntensityProjection(float3 front,float3 back){
+
+
+                 float3 dir = normalize(back-front);
+                 float stepSize = 1/iterations;
+                 float3 Step = dir * stepSize;
+                 float4 pos = float4(front, 0);
+
+                 float4 dst = float4(0, 0, 0, 0);
+                 float4 src = 0;
+                 float4 normal = 0;
+
+
+                  for(int i = 0; i < iterations; ++i){
+                        src.rgb = tex3Dlod(_Volume, pos).a;
+                        src.a = 1;
+                        dst = max(dst,src);
+
+                        //advance the current position
+                        pos.xyz += Step;
+
+                        //break if the position is out of volume
+                        if(pos.x > 1.0f || pos.y > 1.0f || pos.z > 1.0f || pos.x < 0.0f || pos.y < 0.0f || pos.z < 0.0f)
+                            break;
+
+                  }
+                  return dst;
 
             }
 
