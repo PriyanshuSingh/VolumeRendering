@@ -158,7 +158,7 @@ public class PointBag : MonoBehaviour,IPointerClickHandler
 //			point.GetComponent<RectTransform> ().anchoredPosition = position;
 //			points.Add (point);
 //		}
-
+		 
 		computeTransferFunction ();
 
 	}

@@ -84,6 +84,7 @@ Shader "VolumeRendering/RayShader"
             //0 for front to back,1 for back to front
             uniform int compositingType;
             uniform int enablePhong;
+            uniform int enableAssociative;
             uniform float ambientFactor;
 
 
@@ -194,7 +195,7 @@ Shader "VolumeRendering/RayShader"
 
 
                     //alpha premultipied colors
-                    src.rgb *= src.a;
+                    if(enableAssociative == 1)src.rgb *= src.a;
 
 
 
@@ -268,7 +269,7 @@ Shader "VolumeRendering/RayShader"
                         src.rgb*=getPhongFactor(normal,wPos);
 
                      //alpha premultipied colors
-                     src.rgb *= src.a;
+                     if(enableAssociative == 1)src.rgb *= src.a;
 
 
 
