@@ -54,7 +54,7 @@ public class Geometry : MonoBehaviour {
 		compostingDropDown.onValueChanged.AddListener((int arg0) => {_rayMat.SetInt("compositingType", arg0);});
 		compostingDropDown.value = 0;
 //		PointBag PBscript = GameObject.FindGameObjectWithTag ("PBG").GetComponent<PointBag> ();
-		associativeColor.onValueChanged.AddListener ((bool arg0) => {PointBag PBscript = GameObject.FindGameObjectWithTag ("PBG").GetComponent<PointBag> ();PBscript.assoc = arg0; PBscript.computeTransferFunction(); int s = 0; if(arg0)s=1;_rayMat.SetInt ("enableAssociative", s);}); 
+		associativeColor.onValueChanged.AddListener ((bool arg0) => {PointBag PBscript = GameObject.FindGameObjectWithTag ("PBG").GetComponent<PointBag> ();PBscript.assoc = arg0; Debug.Log(PBscript); PBscript.computeTransferFunction(); int s = 0; if(arg0)s=1;_rayMat.SetInt ("enableAssociative", s);}); 
 		associativeColor.isOn = false;
 
 		phongToggle.onValueChanged.AddListener ((bool arg0) => {int s = 0; if(arg0) s = 1; _rayMat.SetInt("enablePhong",s);});
